@@ -1,5 +1,7 @@
-import React from "react";
-import { Image } from "react-native";
+import React, { useEffect } from "react";
+import { Image, Text } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import IconsFA from "react-native-vector-icons/FontAwesome";
 
 import {
   getFocusedRouteNameFromRoute,
@@ -22,7 +24,9 @@ import AccountConfig from "../pages/DefinicoesConta/definicoesConta";
 
 import DadosCorporaisConfig from "../pages/DadosCorporais/dadosCorporais";
 
-import PlanosTreinoDetails from "../pages/PlanosTreino/planosTreinoDetails";
+import PlanoTreinoDetails from "../pages/PlanosTreino/detailsPlanoTreino";
+import ExercicioDetails from "../pages/Exercicios/detailsExercicio";
+import AulaGrupoDetails from "../pages/AulasGrupo/detailsAulaGrupo";
 
 import AddPlanoTreino from "../pages/PlanosTreino/addPlanoTreino";
 import AddExercicio from "../pages/Exercicios/addExercicio";
@@ -30,6 +34,9 @@ import AddAulaGrupo from "../pages/AulasGrupo/addAulaGrupo";
 
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { useState } from "react/cjs/react.development";
+import { database } from "../constant/database";
+import AppTitles from "./AppTitles";
 
 const PlanosTreinoListStack = createStackNavigator();
 const ExerciciosListStack = createStackNavigator();
@@ -90,6 +97,7 @@ function Tabs() {
         inactiveTintColor: "#B72727",
         labelStyle: {
           fontSize: 13,
+          fontFamily: "Poppins_Regular",
         },
         style: {
           height: 80,
@@ -140,25 +148,73 @@ function Tabs() {
   );
 }
 
-function getHeaderTitle(route) {
-  // If the focused route is not found, we need to assume it's the initial screen
-  // This can happen during if there hasn't been any navigation inside the screen
-  // In our case, it's "Feed" as that's the first screen inside the navigator
-  const routeName = getFocusedRouteNameFromRoute(route) ?? "PlanosTreinoList";
-
-  switch (routeName) {
-    case "PlanosTreinoList":
-      return "Planos Treino";
-    case "ExerciciosList":
-      return "Exercícios";
-    case "AulasGrupoList":
-      return "Aulas Grupo";
-    case "AccountConfig":
-      return "Definições da Conta";
+async function clearUserId() {
+  try {
+    await AsyncStorage.clear();
+  } catch (error) {
+    console.log(error);
   }
 }
 
 export default function AppNavigations() {
+  const [username, setUsername] = useState("");
+  const [userId, setUserId] = useState("");
+
+  const uri =
+    "http://" + database.ip + ":" + database.port + "/php/getUsername.php";
+
+  async function getAsyncUser() {
+    try {
+      let id = await AsyncStorage.getItem("user_id");
+      id = JSON.parse(id);
+
+      if (id != null) {
+        setUserId(id);
+      }
+    } catch (error) {
+      alert(error);
+    }
+  }
+
+  function getUsername() {
+    fetch(uri, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: JSON.stringify(userId),
+      }),
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.message == "success") {
+          setUsername(json.user);
+        }
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }
+
+  function getHeaderTitle(route) {
+    getAsyncUser();
+    getUsername();
+    const routeName = getFocusedRouteNameFromRoute(route) ?? "PlanosTreinoList";
+
+    switch (routeName) {
+      case "PlanosTreinoList":
+        return <AppTitles username={username} />;
+      case "ExerciciosList":
+        return <AppTitles username={username} />;
+      case "AulasGrupoList":
+        return <AppTitles username={username} />;
+      case "AccountConfig":
+        return <AppTitles username={username} />;
+    }
+  }
+
   return (
     <RootStack.Navigator initialRouteName="Initial">
       <RootStack.Screen
@@ -185,11 +241,25 @@ export default function AppNavigations() {
       <RootStack.Screen
         name="Main"
         component={Tabs}
-        options={({ route }) => ({
-          headerTitle: getHeaderTitle(route),
+        options={({ route, navigation }) => ({
+          headerTitle: () => getHeaderTitle(route),
           headerLeft: () => (
-            <Button>
+            <Button
+              onPress={() => {
+                navigation.navigate("PlanosTreinoList");
+              }}
+            >
               <Icon name="home" size={30} color="#fff" />
+            </Button>
+          ),
+          headerRight: () => (
+            <Button
+              onPress={() => {
+                clearUserId();
+                navigation.navigate("Login");
+              }}
+            >
+              <IconsFA name="sign-out" size={30} color="#fff" />
             </Button>
           ),
           headerTintColor: "white",
@@ -200,9 +270,23 @@ export default function AppNavigations() {
       />
       <RootStack.Screen
         name="PlanoTreinoDetails"
-        component={PlanosTreinoDetails}
+        component={PlanoTreinoDetails}
         options={({ route }) => ({
           headerTitle: "Detalhes Plano Treino",
+        })}
+      />
+      <RootStack.Screen
+        name="ExercicioDetails"
+        component={ExercicioDetails}
+        options={({ route }) => ({
+          headerTitle: "Detalhes Exercício",
+        })}
+      />
+      <RootStack.Screen
+        name="AulaGrupoDetails"
+        component={AulaGrupoDetails}
+        options={({ route }) => ({
+          headerTitle: "Detalhes Aula Grupo",
         })}
       />
       <RootStack.Screen

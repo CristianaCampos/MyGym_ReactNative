@@ -1,76 +1,132 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
-import React from "react";
-import { Image, StyleSheet, View, Text } from "react-native";
-import { Button } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, View, Text, FlatList, BackHandler } from "react-native";
+import { Button, Card } from "react-native-paper";
+import { FAB } from "react-native-paper";
+import { database } from "../../constant/database";
 
-export default function aulasGrupoList({ navigation }) {
+export default function aulaGrupoList({ navigation }) {
+  const uri =
+    "http://" + database.ip + ":" + database.port + "/php/getAulas.php";
+
+  const [userId, setUserId] = useState("");
+  const [aulas, setAulas] = useState([]);
+
+  async function getAsyncUser() {
+    try {
+      let id = await AsyncStorage.getItem("user_id");
+      id = JSON.parse(id);
+
+      if (id != null) {
+        setUserId(id);
+      }
+    } catch (error) {
+      alert(error);
+    }
+  }
+
+  function loadAulas() {
+    fetch(uri, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: JSON.stringify(userId),
+      }),
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.message == "success") {
+          setAulas(json.aulas);
+        }
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }
+
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", () => true);
+    return () =>
+      BackHandler.removeEventListener("hardwareBackPress", () => true);
+  }, []);
+
+  useEffect(() => {
+    getAsyncUser();
+  });
+
+  useEffect(() => {
+    loadAulas();
+  });
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.pageTitle}>Aulas de Grupo</Text>
-      <View style={styles.rectangleView}>
-        <Text style={styles.nomeText}>Aula 1 </Text>
-        <Text style={styles.diaSemanaText}>Dia Semana</Text>
-      </View>
-      <View style={styles.rectangleView}>
-        <Text style={styles.nomeText}>Aula 2</Text>
-        <Text style={styles.diaSemanaText}>Dia Semana</Text>
-        {/* <View style={{ flexDirection: "row" }}> */}
-        {/* <Image
-          style={{ height: "70%", resizeMode: "contain" }}
-          source={require("../../../assets/editIcon.png")}
+    <View style={{ backgroundColor: "white", height: "100%" }}>
+      <View style={styles.container}>
+        <Text style={styles.pageTitle}>Aulas Grupo</Text>
+        <StatusBar style="auto" />
+        <FlatList
+          data={aulas}
+          keyExtractor={({ id }, index) => id}
+          renderItem={({ item }) => (
+            <Card
+              onPress={() =>
+                navigation.navigate("AulaGrupoDetails", {
+                  id: item.id,
+                })
+              }
+              style={styles.rectangleView}
+            >
+              <View
+                style={{
+                  padding: 10,
+                }}
+              >
+                <Text style={styles.nomeText}>{item.nome}</Text>
+                <Text style={styles.diaSemanaText}>{item.diaSemana}</Text>
+              </View>
+            </Card>
+          )}
         />
-        <Image
-          style={{ height: "70%", resizeMode: "contain" }}
-          source={require("../../../assets/deleteIcon.png")}
-        /> */}
-        {/* </View> */}
+        <FAB
+          style={styles.fab}
+          icon="plus"
+          onPress={() => navigation.navigate("AddAulaGrupo")}
+        />
       </View>
-      <Button
-        style={styles.floatingButton}
-        onPress={() => navigation.navigate("AddAulaGrupo")}
-      >
-        <Ionicons name="ios-add" size={40} color="white"></Ionicons>
-      </Button>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  fab: {
+    backgroundColor: "#B72727",
+    position: "absolute",
+    margin: 16,
+    right: 0,
+    bottom: 0,
+  },
   container: {
-    height: "100%",
+    flex: 1,
     marginHorizontal: "5%",
   },
   pageTitle: {
     fontSize: 25,
     fontFamily: "Poppins_Bold",
     marginTop: "3%",
-    marginLeft: "5%",
     textAlign: "center",
   },
   rectangleView: {
-    // flexDirection: "column",
+    flexDirection: "column",
     shadowColor: "#B72727",
     shadowOpacity: 0.5,
     backgroundColor: "#B72727",
-    height: "12%",
     borderWidth: 2,
     marginTop: "5%",
-    paddingHorizontal: 10,
     borderColor: "#B72727",
     borderRadius: 7,
-    justifyContent: "center",
-  },
-  floatingButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#B72727",
-    position: "absolute",
-    bottom: 10,
-    right: 10,
-    justifyContent: "center",
-    alignItems: "center",
   },
   nomeText: {
     color: "white",

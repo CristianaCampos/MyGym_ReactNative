@@ -12,8 +12,10 @@ import {
 } from "react-native";
 import { Button } from "react-native-paper";
 
+import { database } from "../../../constant/database";
+
 function Register(props) {
-  const uri = "http://192.168.1.75:80/php/insertUser.php";
+  const uri = "http://" + database.ip + ":" + database.port + "/php/login.php";
 
   const [nome, setNome] = useState("");
   const [nomeUtilizador, setNomeUtilizador] = useState("");
@@ -45,70 +47,63 @@ function Register(props) {
     }
   };
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS == "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <ScrollView>
-        <StatusBar style="auto" />
-        <Image
-          style={styles.img}
-          source={require("../../../../assets/logo.png")}
-        ></Image>
-        {/* input nome */}
-        {/* <View style={styles.input}> */}
-        <TextInput
-          placeholder="Nome"
-          style={styles.input}
-          onChangeText={(text) => setNome(text)}
-        ></TextInput>
-        {/* </View> */}
-        {/* input nomeUtilizador */}
-        {/* <View style={styles.input}> */}
-        <TextInput
-          placeholder="Nome Utilizador"
-          style={styles.input}
-          onChangeText={(text) => setNomeUtilizador(text)}
-        ></TextInput>
-        {/* </View> */}
-        {/* input email */}
-        {/* <View style={styles.input}> */}
-        <TextInput
-          placeholder="Email"
-          style={styles.input}
-          onChangeText={(text) => setEmail(text)}
-        ></TextInput>
-        {/* </View> */}
-        {/* input contacto */}
-        {/* <View style={styles.input}> */}
-        <TextInput
-          placeholder="Contacto"
-          style={styles.input}
-          onChangeText={(text) => setContacto(text)}
-        ></TextInput>
-        {/* </View> */}
-        {/* input password */}
-        {/* <View style={styles.input}> */}
-        <TextInput
-          placeholder="Password"
-          style={styles.input}
-          onChangeText={(text) => setPass(text)}
-        ></TextInput>
-        <Button
-          mode="contained"
-          onPress={() => register()}
-          style={styles.btnRegister}
-        >
-          <Text style={styles.btnTextRegister}>Criar Conta</Text>
-        </Button>
-        <Text
-          style={styles.btnTextLogin}
-          onPress={() => props.navigation.navigate("Login")}
-        >
-          Iniciar Sessão
-        </Text>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    <View style={{ backgroundColor: "white", height: "100%" }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS == "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <ScrollView>
+          <StatusBar style="auto" />
+          <Image
+            style={styles.img}
+            source={require("../../../../assets/logo.png")}
+          ></Image>
+          {/* input nome */}
+          <TextInput
+            placeholder="Nome"
+            style={styles.input}
+            onChangeText={(text) => setNome(text)}
+          ></TextInput>
+          {/* input nomeUtilizador */}
+          <TextInput
+            placeholder="Nome Utilizador"
+            style={styles.input}
+            onChangeText={(text) => setNomeUtilizador(text)}
+          ></TextInput>
+          {/* input email */}
+          <TextInput
+            placeholder="Email"
+            style={styles.input}
+            onChangeText={(text) => setEmail(text)}
+          ></TextInput>
+          {/* input contacto */}
+          <TextInput
+            placeholder="Contacto"
+            style={styles.input}
+            onChangeText={(text) => setContacto(text)}
+          ></TextInput>
+          {/* input password */}
+          <TextInput
+            placeholder="Password"
+            style={styles.input}
+            onChangeText={(text) => setPass(text)}
+          ></TextInput>
+          <Button
+            mode="contained"
+            onPress={() => register()}
+            style={styles.btnRegister}
+          >
+            <Text style={styles.btnTextRegister}>Criar Conta</Text>
+          </Button>
+          <Text
+            style={styles.btnTextLogin}
+            onPress={() => props.navigation.navigate("Login")}
+          >
+            Iniciar Sessão
+          </Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -134,13 +129,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderColor: "#B72727",
     borderRadius: 7,
-    fontSize: 18,
+    fontSize: 15,
     fontFamily: "Poppins_Regular",
   },
   btnRegister: {
     backgroundColor: "#B72727",
     marginTop: "8%",
-    height: "7%",
+    height: 50,
+    justifyContent: "center",
   },
   btnTextRegister: {
     fontSize: 20,

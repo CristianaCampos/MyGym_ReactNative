@@ -1,10 +1,20 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
-import { TextInput, StyleSheet, View, Text } from "react-native";
+import {
+  TextInput,
+  StyleSheet,
+  View,
+  Text,
+  KeyboardAvoidingView,
+  ScrollView,
+} from "react-native";
 import { Button } from "react-native-paper";
 
+import { database } from "../../constant/database";
+
 function AddExercicio(props, navigation) {
-  const uri = "http://192.168.1.75:80/php/insertExercicio.php";
+  const uri =
+    "http://" + database.ip + ":" + database.port + "/php/insertExercicio.php";
 
   const [nome, setNome] = useState("");
   const [zonaMuscular, setzonaMuscular] = useState("");
@@ -27,44 +37,43 @@ function AddExercicio(props, navigation) {
         case "server_error":
           alert("Server error");
           break;
+        case "bd_error":
+          alert("Exercício já registado");
+          break;
       }
     } catch (e) {
-      alert("erro on login...", e.message);
+      alert("erro on login..." + e.message);
     }
   };
   return (
-    <View style={styles.container}>
-      <Text style={styles.pageTitle}>Criar Exercício</Text>
+    <View style={{ backgroundColor: "white", height: "100%" }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS == "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <ScrollView>
+          <StatusBar style="auto" />
+          <Text style={styles.pageTitle}>Criar Exercício</Text>
 
-      <View style={styles.input}>
-        <TextInput
-          placeholder="Nome Exercício"
-          style={styles.inputText}
-          onChangeText={(text) => setNome(text)}
-        ></TextInput>
-      </View>
-      <View style={styles.input}>
-        <TextInput
-          placeholder="Zona Muscular"
-          style={styles.inputText}
-          onChangeText={(text) => setzonaMuscular(text)}
-        ></TextInput>
-      </View>
-      <Button
-        mode="contained"
-        onPress={() => add()}
-        // onPress={() => navigation.navigate("Main")}
-        style={styles.btnLogin}
-      >
-        <Text style={styles.btnTextLogin}>Criar Exercício</Text>
-      </Button>
-      <Button
-        mode="contained"
-        // onPress={() => navigation.navigate("Main")}
-        style={styles.btnCancelar}
-      >
-        <Text style={styles.btnTextCancelar}>Cancelar</Text>
-      </Button>
+          <TextInput
+            placeholder="Nome Exercício"
+            style={styles.input}
+            onChangeText={(text) => setNome(text)}
+          ></TextInput>
+          <TextInput
+            placeholder="Zona Muscular"
+            style={styles.input}
+            onChangeText={(txt) => setzonaMuscular(txt)}
+          ></TextInput>
+          <Button
+            mode="contained"
+            onPress={() => add()}
+            style={styles.btnLogin}
+          >
+            <Text style={styles.btnTextLogin}>Criar Exercício</Text>
+          </Button>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -82,39 +91,26 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   input: {
+    height: 40,
     marginTop: "5%",
-    height: "7%",
     flexDirection: "row",
     alignSelf: "center",
     width: "100%",
     borderWidth: 2,
-    marginTop: "5%",
+    paddingTop: 2,
     paddingHorizontal: 10,
     borderColor: "#B72727",
     borderRadius: 7,
-  },
-  inputText: {
     fontSize: 15,
     fontFamily: "Poppins_Regular",
   },
   btnLogin: {
     backgroundColor: "#B72727",
     marginTop: "8%",
-    height: "7%",
+    height: 50,
+    justifyContent: "center",
   },
   btnTextLogin: {
-    fontSize: 20,
-    fontFamily: "Poppins_Regular",
-  },
-  btnCancelar: {
-    backgroundColor: "#F3EFEF",
-    borderWidth: 1,
-    borderColor: "black",
-    marginTop: "4%",
-    height: "7%",
-  },
-  btnTextCancelar: {
-    color: "black",
     fontSize: 20,
     fontFamily: "Poppins_Regular",
   },

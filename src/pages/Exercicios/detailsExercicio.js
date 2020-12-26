@@ -1,27 +1,32 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  View,
-  Image,
-  StyleSheet,
-  KeyboardAvoidingView,
-  ScrollView,
-  Text,
   TextInput,
-  BackHandler,
+  StyleSheet,
+  View,
+  Text,
+  KeyboardAvoidingView,
   FlatList,
+  BackHandler,
 } from "react-native";
 import { Button } from "react-native-paper";
-import { FAB } from "react-native-paper";
+
 import { database } from "../../constant/database";
 
-export default function AccountConfig({ navigation }) {
+export default function DetailsExercicio({ route }) {
   const uri =
-    "http://" + database.ip + ":" + database.port + "/php/getDadosConta.php";
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/php/getDetailsExercicio.php";
+
+  const { id } = route.params;
 
   const [userId, setUserId] = useState("");
-  const [dadosConta, setDadosConta] = useState([]);
+  const [exerciseId, setExerciseId] = useState("");
+  const [exercise, setExercise] = useState("");
 
   async function getAsyncUser() {
     try {
@@ -36,7 +41,7 @@ export default function AccountConfig({ navigation }) {
     }
   }
 
-  function loadDados() {
+  function loadExercise() {
     fetch(uri, {
       method: "POST",
       headers: {
@@ -45,12 +50,13 @@ export default function AccountConfig({ navigation }) {
       },
       body: JSON.stringify({
         userId: JSON.stringify(userId),
+        exerciseId: JSON.stringify(id),
       }),
     })
       .then((response) => response.json())
       .then((json) => {
         if (json.message == "success") {
-          setDadosConta(json.dadosConta);
+          setExercise(json.exercise);
         }
       })
       .catch((error) => {
@@ -69,43 +75,28 @@ export default function AccountConfig({ navigation }) {
   });
 
   useEffect(() => {
-    loadDados();
+    loadExercise();
   });
-
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
       <View style={styles.container}>
+        <Text style={styles.pageTitle}>Detalhes Exercício</Text>
         <StatusBar style="auto" />
-        <Text style={styles.pageTitle}>Definições da Conta</Text>
         <FlatList
-          data={dadosConta}
+          data={exercise}
           keyExtractor={({ id }, index) => id}
           renderItem={({ item }) => (
             <View>
-              <Image
-                source={require("../../../assets/iconPerfil.png")}
-                style={styles.imgPerfil}
-              />
-              <KeyboardAvoidingView
-                behavior={Platform.OS == "ios" ? "padding" : "height"}
-              >
-                <Text style={styles.meunome}>{item.nome}</Text>
-                <Text style={styles.meunome}>@{item.nomeUtilizador}</Text>
-                <TextInput value={item.nome} style={styles.input}></TextInput>
-                <TextInput value={item.email} style={styles.input}></TextInput>
-                <TextInput
-                  value={item.contacto}
-                  style={styles.input}
-                ></TextInput>
-                <TextInput value={item.pass} style={styles.input}></TextInput>
-              </KeyboardAvoidingView>
-              <Button
-                mode="contained"
-                // onPress={() => navigation.navigate("Main")}
-                style={styles.btnLogin}
-              >
-                <Text style={styles.btnTextLogin}>Atualizar Dados</Text>
-              </Button>
+              <TextInput
+                placeholder="Zona Muscular"
+                style={styles.input}
+                value={item.nome}
+              ></TextInput>
+              <TextInput
+                placeholder="Nome Exercício"
+                style={styles.input}
+                value={item.zonaMuscular}
+              ></TextInput>
             </View>
           )}
         />
@@ -116,7 +107,6 @@ export default function AccountConfig({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     height: "100%",
     marginHorizontal: "5%",
   },
@@ -125,17 +115,6 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_Bold",
     marginTop: "3%",
     marginLeft: "5%",
-    textAlign: "center",
-  },
-  imgPerfil: {
-    height: "15%",
-    alignSelf: "center",
-    marginTop: "5%",
-    resizeMode: "contain",
-  },
-  meunome: {
-    fontFamily: "Poppins_Regular",
-    fontSize: 15,
     textAlign: "center",
   },
   input: {
@@ -154,10 +133,9 @@ const styles = StyleSheet.create({
   },
   btnLogin: {
     backgroundColor: "#B72727",
-    marginTop: "5%",
+    marginTop: "8%",
     height: 50,
     justifyContent: "center",
-    marginHorizontal: "5%",
   },
   btnTextLogin: {
     fontSize: 20,

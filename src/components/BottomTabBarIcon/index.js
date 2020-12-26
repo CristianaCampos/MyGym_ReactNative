@@ -4,9 +4,6 @@ import { Image } from "react-native";
 // import { Ionicons } from "@expo/vector-icons";
 
 export default function MainTabIcon({ focused, color, route }) {
-  let iconName;
-  let iconSize;
-
   switch (route) {
     case "PlanosTreinoList":
       if (focused) {

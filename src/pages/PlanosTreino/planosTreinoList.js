@@ -1,41 +1,121 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
-import React from "react";
-import { Image, StyleSheet, View, Text } from "react-native";
-import { Button } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, View, Text, FlatList, BackHandler } from "react-native";
+import { Button, Card } from "react-native-paper";
+import { FAB } from "react-native-paper";
+import { database } from "../../constant/database";
 
-export default function planosTreinoList({ navigation }) {
+export default function planoTreinoList({ navigation }) {
+  const uri =
+    "http://" + database.ip + ":" + database.port + "/php/getPlanos.php";
+
+  const [userId, setUserId] = useState("");
+  const [planos, setPlanos] = useState([]);
+
+  async function getAsyncUser() {
+    try {
+      let id = await AsyncStorage.getItem("user_id");
+      id = JSON.parse(id);
+
+      if (id != null) {
+        setUserId(id);
+      }
+    } catch (error) {
+      alert(error);
+    }
+  }
+
+  function loadPlanos() {
+    fetch(uri, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: JSON.stringify(userId),
+      }),
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.message == "success") {
+          setPlanos(json.planos);
+        }
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }
+
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", () => true);
+    return () =>
+      BackHandler.removeEventListener("hardwareBackPress", () => true);
+  }, []);
+
+  useEffect(() => {
+    getAsyncUser();
+  });
+
+  useEffect(() => {
+    loadPlanos();
+  });
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.pageTitle}>Planos de Treino</Text>
-      <View style={styles.rectangleView}>
-        <Text style={styles.nomeText}>Plano 1</Text>
-        <Text style={styles.diaSemanaText}>Dia Semana</Text>
+    <View style={{ backgroundColor: "white", height: "100%" }}>
+      <View style={styles.container}>
+        <Text style={styles.pageTitle}>Planos Treino</Text>
+        <StatusBar style="auto" />
+        <FlatList
+          data={planos}
+          keyExtractor={({ id }, index) => id}
+          renderItem={({ item }) => (
+            <Card
+              onPress={() =>
+                navigation.navigate("PlanoTreinoDetails", {
+                  id: item.id,
+                })
+              }
+              style={styles.rectangleView}
+            >
+              <View
+                style={{
+                  padding: 10,
+                }}
+              >
+                <Text style={styles.nomeText}>{item.nome}</Text>
+                <Text style={styles.diaSemanaText}>{item.diaSemana}</Text>
+              </View>
+            </Card>
+          )}
+        />
+        <FAB
+          style={styles.fab}
+          icon="plus"
+          onPress={() => navigation.navigate("AddPlanoTreino")}
+        />
       </View>
-      <View style={styles.rectangleView}>
-        <Text style={styles.nomeText}>Plano 2</Text>
-        <Text style={styles.diaSemanaText}>Dia Semana</Text>
-      </View>
-      <Button
-        style={styles.floatingButton}
-        onPress={() => navigation.navigate("AddPlanoTreino")}
-      >
-        <Ionicons name="ios-add" size={40} color="white"></Ionicons>
-      </Button>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  fab: {
+    backgroundColor: "#B72727",
+    position: "absolute",
+    margin: 16,
+    right: 0,
+    bottom: 0,
+  },
   container: {
-    height: "100%",
+    flex: 1,
     marginHorizontal: "5%",
   },
   pageTitle: {
     fontSize: 25,
     fontFamily: "Poppins_Bold",
     marginTop: "3%",
-    marginLeft: "5%",
     textAlign: "center",
   },
   rectangleView: {
@@ -43,24 +123,10 @@ const styles = StyleSheet.create({
     shadowColor: "#B72727",
     shadowOpacity: 0.5,
     backgroundColor: "#B72727",
-    height: "12%",
     borderWidth: 2,
     marginTop: "5%",
-    paddingHorizontal: 10,
     borderColor: "#B72727",
     borderRadius: 7,
-    justifyContent: "center",
-  },
-  floatingButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#B72727",
-    position: "absolute",
-    bottom: 10,
-    right: 10,
-    justifyContent: "center",
-    alignItems: "center",
   },
   nomeText: {
     color: "white",

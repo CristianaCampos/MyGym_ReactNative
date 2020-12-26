@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import {
@@ -11,38 +12,75 @@ import {
 } from "react-native";
 import { Button } from "react-native-paper";
 
-function Login(props) {
-  const uri = "http://192.168.1.75:80/php/login.php";
+import { database } from "../../../constant/database";
+
+export default function Login({ navigation }) {
+  const uri = "http://" + database.ip + ":" + database.port + "/php/login.php";
 
   const [nomeUtilizador, setNomeUtilizador] = useState("");
   const [pass, setPass] = useState("");
 
-  const login = async () => {
+  const saveUserId = async (userId) => {
     try {
-      const resp = await fetch(uri, {
+      const value = JSON.stringify(userId);
+      await AsyncStorage.setItem("user_id", value);
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  function login() {
+    if (nomeUtilizador != "" && pass != "") {
+      fetch(uri, {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ nomeUtilizador, pass }),
-      });
-      const json = await resp.json();
-      switch (json) {
-        case "login_success":
-          props.navigation.navigate("Main");
-          break;
-        case "password_error":
-          alert("Password error");
-          break;
-        case "server_error":
-          alert("Server error");
-          break;
-      }
-    } catch (e) {
-      alert("erro on login...", e.message);
+        body: JSON.stringify({
+          nomeUtilizador: nomeUtilizador,
+          pass: pass,
+        }),
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          saveUserId(json.user_id);
+          navigation.navigate("Main");
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    } else {
+      alert("Preencha todos os campos!");
     }
-  };
+  }
+
+  // const login = async () => {
+  //   try {
+  //     const resp = await fetch(uri, {
+  //       method: "POST",
+  //       headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ nomeUtilizador, pass }),
+  //     });
+  //     const json = await resp.json();
+  //     switch (json) {
+  //       case "login_success":
+  //         props.navigation.navigate("Main");
+  //         break;
+  //       case "password_error":
+  //         alert("Password error");
+  //         break;
+  //       case "server_error":
+  //         alert("Server error");
+  //         break;
+  //     }
+  //   } catch (e) {
+  //     alert("erro on login...", e.message);
+  //   }
+  // };
 
   return (
     <KeyboardAvoidingView
@@ -58,12 +96,12 @@ function Login(props) {
         <TextInput
           placeholder="Nome Utilizador"
           style={styles.input}
-          onChangeText={(text) => setNomeUtilizador(text)}
+          onChangeText={(nomeUtilizador) => setNomeUtilizador(nomeUtilizador)}
         ></TextInput>
         <TextInput
           placeholder="Password"
           style={styles.input}
-          onChangeText={(text) => setPass(text)}
+          onChangeText={(pass) => setPass(pass)}
         ></TextInput>
         <Button
           mode="contained"
@@ -74,7 +112,7 @@ function Login(props) {
         </Button>
         <Text
           style={styles.btnTextRegister}
-          onPress={() => props.navigation.navigate("Register")}
+          onPress={() => navigation.navigate("Register")}
         >
           Criar Conta
         </Text>
@@ -105,13 +143,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderColor: "#B72727",
     borderRadius: 7,
-    fontSize: 18,
+    fontSize: 15,
     fontFamily: "Poppins_Regular",
   },
   btnLogin: {
     backgroundColor: "#B72727",
     marginTop: "8%",
-    height: "9%",
+    height: 50,
+    justifyContent: "center",
   },
   btnTextLogin: {
     fontSize: 20,
@@ -125,5 +164,3 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 });
-
-export default Login;
