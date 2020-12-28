@@ -25,7 +25,6 @@ export default function DetailsExercicio({ route }) {
   const { id } = route.params;
 
   const [userId, setUserId] = useState("");
-  const [exerciseId, setExerciseId] = useState("");
   const [exercise, setExercise] = useState("");
 
   async function getAsyncUser() {
@@ -72,11 +71,12 @@ export default function DetailsExercicio({ route }) {
 
   useEffect(() => {
     getAsyncUser();
-  });
+  }, []);
 
   useEffect(() => {
     loadExercise();
-  });
+  }, []);
+
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
       <View style={styles.container}>
@@ -88,18 +88,22 @@ export default function DetailsExercicio({ route }) {
           renderItem={({ item }) => (
             <View>
               <TextInput
-                placeholder="Zona Muscular"
+                placeholder="Nome Exercício"
                 style={styles.input}
                 value={item.nome}
               ></TextInput>
               <TextInput
-                placeholder="Nome Exercício"
+                placeholder="Zona Muscular"
                 style={styles.input}
                 value={item.zonaMuscular}
               ></TextInput>
             </View>
           )}
         />
+        {/* onPress={() => edit()} */}
+        <Button mode="contained" style={styles.btnLogin}>
+          <Text style={styles.btnTextLogin}>Atualizar Dados</Text>
+        </Button>
       </View>
     </View>
   );
@@ -118,13 +122,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   input: {
-    height: 40,
+    height: 50,
     marginTop: "5%",
     flexDirection: "row",
     alignSelf: "center",
     width: "100%",
-    borderWidth: 2,
-    paddingTop: 2,
+    borderWidth: 1,
     paddingHorizontal: 10,
     borderColor: "#B72727",
     borderRadius: 7,

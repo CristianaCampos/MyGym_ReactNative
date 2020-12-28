@@ -1,11 +1,11 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TextInput,
   StyleSheet,
   View,
   Text,
-  KeyboardAvoidingView,
   FlatList,
   BackHandler,
 } from "react-native";
@@ -13,17 +13,14 @@ import { Button } from "react-native-paper";
 
 import { database } from "../../constant/database";
 
-export default function DetailsAulaGrupo({ aulaId }) {
+export default function DetailsAulaGrupo({ route }) {
   const uri =
-    "http://" +
-    database.ip +
-    ":" +
-    database.port +
-    "/php/getDetailsExercicios.php";
+    "http://" + database.ip + ":" + database.port + "/php/getDetailsAula.php";
+
+  const { id } = route.params;
 
   const [userId, setUserId] = useState("");
-  const [exercicioId, setExercicioId] = useState("");
-  const [exercise, setExercise] = useState("");
+  const [aula, setAula] = useState("");
 
   async function getAsyncUser() {
     try {
@@ -38,20 +35,7 @@ export default function DetailsAulaGrupo({ aulaId }) {
     }
   }
 
-  async function getId() {
-    try {
-      let idExercicio = exerciseId;
-      idExercicio = JSON.parse(idExercicio);
-
-      if (idExercicio != null) {
-        setExercicioId(idExercicio);
-      }
-    } catch (error) {
-      alert(error);
-    }
-  }
-
-  function loadExercise() {
+  function loadAula() {
     fetch(uri, {
       method: "POST",
       headers: {
@@ -60,13 +44,13 @@ export default function DetailsAulaGrupo({ aulaId }) {
       },
       body: JSON.stringify({
         userId: JSON.stringify(userId),
-        exerciseId: JSON.stringify(exercicioId),
+        aulaId: JSON.stringify(id),
       }),
     })
       .then((response) => response.json())
       .then((json) => {
         if (json.message == "success") {
-          setExercise(json.exercise);
+          setAula(json.aula);
         }
       })
       .catch((error) => {
@@ -82,35 +66,39 @@ export default function DetailsAulaGrupo({ aulaId }) {
 
   useEffect(() => {
     getAsyncUser();
-    getId();
-  });
+  }, []);
 
   useEffect(() => {
-    loadExercise();
-  });
+    loadAula();
+  }, []);
+
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
       <View style={styles.container}>
-        <Text style={styles.pageTitle}>Detalhes Exercício</Text>
+        <Text style={styles.pageTitle}>Detalhes Aula Grupo</Text>
         <StatusBar style="auto" />
         <FlatList
-          data={exercise}
+          data={aula}
           keyExtractor={({ id }, index) => id}
           renderItem={({ item }) => (
             <View>
               <TextInput
-                placeholder="Zona Muscular"
+                placeholder="Nome Aula Grupo"
                 style={styles.input}
                 value={item.nome}
               ></TextInput>
               <TextInput
-                placeholder="Nome Exercício"
+                placeholder="Dia Semana"
                 style={styles.input}
-                value={item.zonaMuscular}
+                value={item.diaSemana}
               ></TextInput>
             </View>
           )}
         />
+        {/* onPress={() => edit()} */}
+        <Button mode="contained" style={styles.btnLogin}>
+          <Text style={styles.btnTextLogin}>Atualizar Dados</Text>
+        </Button>
       </View>
     </View>
   );
@@ -129,13 +117,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   input: {
-    height: 40,
+    height: 50,
     marginTop: "5%",
     flexDirection: "row",
     alignSelf: "center",
     width: "100%",
-    borderWidth: 2,
-    paddingTop: 2,
+    borderWidth: 1,
     paddingHorizontal: 10,
     borderColor: "#B72727",
     borderRadius: 7,
@@ -149,19 +136,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   btnTextLogin: {
-    fontSize: 20,
-    fontFamily: "Poppins_Regular",
-  },
-  btnCancelar: {
-    backgroundColor: "#F3EFEF",
-    borderWidth: 1,
-    borderColor: "black",
-    marginTop: "4%",
-    height: 50,
-    justifyContent: "center",
-  },
-  btnTextCancelar: {
-    color: "black",
     fontSize: 20,
     fontFamily: "Poppins_Regular",
   },

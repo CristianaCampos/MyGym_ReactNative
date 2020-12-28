@@ -93,7 +93,7 @@ export default function AddAulaGrupo({ props, navigation }) {
               },
             ]}
             defaultValue={dia}
-            containerStyle={{ height: 50, marginTop: "5%" }}
+            containerStyle={{ height: 40, marginTop: "5%" }}
             style={{
               backgroundColor: "#fff",
               borderColor: "#B72727",
@@ -136,11 +136,11 @@ const styles = StyleSheet.create({
   },
   input: {
     marginTop: "5%",
-    height: 40,
+    height: 50,
     flexDirection: "row",
     alignSelf: "center",
     width: "100%",
-    borderWidth: 2,
+    borderWidth: 1,
     marginTop: "5%",
     paddingHorizontal: 10,
     borderColor: "#B72727",

@@ -17,7 +17,7 @@ function AddExercicio(props, navigation) {
     "http://" + database.ip + ":" + database.port + "/php/insertExercicio.php";
 
   const [nome, setNome] = useState("");
-  const [zonaMuscular, setzonaMuscular] = useState("");
+  const [zonaMuscular, setZonaMuscular] = useState("");
 
   const add = async () => {
     try {
@@ -27,7 +27,7 @@ function AddExercicio(props, navigation) {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ nome, zonaMuscular }),
+        body: JSON.stringify({ nome: nome, zonaMuscular: zonaMuscular }),
       });
       const json = await resp.json();
       switch (json) {
@@ -63,7 +63,7 @@ function AddExercicio(props, navigation) {
           <TextInput
             placeholder="Zona Muscular"
             style={styles.input}
-            onChangeText={(txt) => setzonaMuscular(txt)}
+            onChangeText={(txt) => setZonaMuscular(txt)}
           ></TextInput>
           <Button
             mode="contained"
@@ -91,13 +91,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   input: {
-    height: 40,
+    height: 50,
     marginTop: "5%",
     flexDirection: "row",
     alignSelf: "center",
     width: "100%",
-    borderWidth: 2,
-    paddingTop: 2,
+    borderWidth: 1,
     paddingHorizontal: 10,
     borderColor: "#B72727",
     borderRadius: 7,

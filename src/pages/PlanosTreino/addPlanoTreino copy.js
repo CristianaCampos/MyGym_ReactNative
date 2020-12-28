@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import { Button } from "react-native-paper";
 import DropDownPicker from "react-native-dropdown-picker";
-import { Picker } from "@react-native-picker/picker";
 
 import { database } from "../../constant/database";
 
@@ -25,10 +24,14 @@ export default function AddPlanoTreino({ navigation }) {
     "/php/getExerciciosPlanos.php";
 
   const [userId, setUserId] = useState("");
-  const [exercicios, setExercicios] = useState([]);
+  const [exercicio, setExercicio] = useState([]);
+  const [items, setItems] = useState([]);
 
   const [dia, setDia] = useState("seg");
-  const [exercicio, setExercicio] = useState("");
+  // const [ex2, setEx2] = useState([]);
+  // const [ex3, setEx3] = useState([]);
+  // const [ex4, setEx4] = useState([]);
+  // const [ex5, setEx5] = useState([]);
 
   async function getAsyncUser() {
     try {
@@ -57,13 +60,22 @@ export default function AddPlanoTreino({ navigation }) {
       .then((response) => response.json())
       .then((json) => {
         if (json.message == "success") {
-          setExercicios(json.exercises);
+          setExercicio(json.exercises);
         }
       })
       .catch((error) => {
         alert(error);
       });
   }
+
+  const load = () => {
+    for (var i = 0; i < exercicio.length; i++) {
+      items.push({
+        label: exercicio[i].nome,
+        value: exercicio[i].nome,
+      });
+    }
+  };
 
   useEffect(() => {
     BackHandler.addEventListener("hardwareBackPress", () => true);
@@ -76,13 +88,17 @@ export default function AddPlanoTreino({ navigation }) {
   }, []);
 
   useEffect(() => {
+    items.splice(0, items.length);
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  useEffect(() => {
     loadExercicios();
     // https://stackoverflow.com/questions/34252982/looping-json-display-in-react-native
   }, []);
-
-  let myExercicios = exercicios.map((myValue, myIndex) => {
-    return <Picker.Item label={myValue.nome} value={myIndex} key={myIndex} />;
-  });
 
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
@@ -146,13 +162,28 @@ export default function AddPlanoTreino({ navigation }) {
           onChangeItem={(item) => setDia(item.value)}
         />
         <Text style={styles.textExercicios}>Exercícios</Text>
-        <Picker
-          mode="dropdown"
-          selectedValue={exercicio}
-          onValueChange={(value) => setExercicio(value)}
-        >
-          {myExercicios}
-        </Picker>
+        <DropDownPicker
+          items={items}
+          // controller={(instance) => (controller = instance)}
+          // onChangeList={(items, callback) => {
+          //   new Promise((resolve, reject) => resolve(setItems(items)))
+          //     .then(() => callback())
+          //     .catch(() => {});
+          // }}
+          containerStyle={{ height: 50, marginTop: "5%" }}
+          style={{
+            backgroundColor: "#fff",
+            borderColor: "#B72727",
+            fontFamily: "Poppins_Regular",
+          }}
+          itemStyle={{
+            justifyContent: "flex-start",
+            fontFamily: "Poppins_Regular",
+          }}
+          dropDownStyle={{
+            backgroundColor: "#fff",
+          }}
+        />
         <Button mode="contained" style={styles.btnLogin}>
           {/*onPress={() => add()}*/}
           <Text style={styles.btnTextLogin}>Criar Plano Treino</Text>
@@ -180,12 +211,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   input: {
-    height: 50,
+    height: 40,
     marginTop: "5%",
     flexDirection: "row",
     alignSelf: "center",
     width: "100%",
     borderWidth: 1,
+    paddingTop: 2,
     paddingHorizontal: 10,
     borderColor: "#B72727",
     borderRadius: 7,

@@ -86,6 +86,7 @@ function Register(props) {
           <TextInput
             placeholder="Password"
             style={styles.input}
+            secureTextEntry={true}
             onChangeText={(text) => setPass(text)}
           ></TextInput>
           <Button
@@ -119,13 +120,12 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   input: {
-    height: 40,
+    height: 50,
     marginTop: "5%",
     flexDirection: "row",
     alignSelf: "center",
     width: "100%",
-    borderWidth: 2,
-    paddingTop: 2,
+    borderWidth: 1,
     paddingHorizontal: 10,
     borderColor: "#B72727",
     borderRadius: 7,

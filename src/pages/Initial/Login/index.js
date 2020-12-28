@@ -55,33 +55,6 @@ export default function Login({ navigation }) {
     }
   }
 
-  // const login = async () => {
-  //   try {
-  //     const resp = await fetch(uri, {
-  //       method: "POST",
-  //       headers: {
-  //         Accept: "application/json",
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ nomeUtilizador, pass }),
-  //     });
-  //     const json = await resp.json();
-  //     switch (json) {
-  //       case "login_success":
-  //         props.navigation.navigate("Main");
-  //         break;
-  //       case "password_error":
-  //         alert("Password error");
-  //         break;
-  //       case "server_error":
-  //         alert("Server error");
-  //         break;
-  //     }
-  //   } catch (e) {
-  //     alert("erro on login...", e.message);
-  //   }
-  // };
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS == "ios" ? "padding" : "height"}
@@ -101,6 +74,7 @@ export default function Login({ navigation }) {
         <TextInput
           placeholder="Password"
           style={styles.input}
+          secureTextEntry={true}
           onChangeText={(pass) => setPass(pass)}
         ></TextInput>
         <Button
@@ -133,13 +107,12 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   input: {
-    height: 40,
+    height: 50,
     marginTop: "5%",
     flexDirection: "row",
     alignSelf: "center",
     width: "100%",
-    borderWidth: 2,
-    paddingTop: 2,
+    borderWidth: 1,
     paddingHorizontal: 10,
     borderColor: "#B72727",
     borderRadius: 7,

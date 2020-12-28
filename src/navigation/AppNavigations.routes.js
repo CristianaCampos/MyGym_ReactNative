@@ -45,6 +45,42 @@ const AccountConfigStack = createStackNavigator();
 
 const BottomTab = createBottomTabNavigator();
 const RootStack = createStackNavigator();
+const TopTab = createMaterialTopTabNavigator();
+
+function DadosTopTabNavigatorScreen() {
+  return (
+    <TopTab.Navigator
+      backBehavior="none"
+      tabBarOptions={{
+        style: {
+          backgroundColor: "#B72727",
+        },
+        activeTintColor: "white",
+        pressColor: "white",
+        indicatorStyle: {
+          backgroundColor: "white",
+          padding: 2,
+        },
+        labelStyle: { fontSize: 13 },
+      }}
+    >
+      <TopTab.Screen
+        name="AccountConfig"
+        component={AccountConfigStackScreen}
+        options={{
+          title: "Dados da Conta",
+        }}
+      />
+      <TopTab.Screen
+        name="DadosCorporais"
+        component={DadosCorporaisConfig}
+        options={{
+          title: "Dados Corporais",
+        }}
+      />
+    </TopTab.Navigator>
+  );
+}
 
 function PlanosTreinoListStackScreen() {
   return (
@@ -139,7 +175,7 @@ function Tabs() {
       />
       <BottomTab.Screen
         name="AccountConfig"
-        component={AccountConfigStackScreen}
+        component={DadosTopTabNavigatorScreen}
         options={{
           title: "Definições",
         }}
@@ -202,17 +238,17 @@ export default function AppNavigations() {
     getAsyncUser();
     getUsername();
     const routeName = getFocusedRouteNameFromRoute(route) ?? "PlanosTreinoList";
-
-    switch (routeName) {
-      case "PlanosTreinoList":
-        return <AppTitles username={username} />;
-      case "ExerciciosList":
-        return <AppTitles username={username} />;
-      case "AulasGrupoList":
-        return <AppTitles username={username} />;
-      case "AccountConfig":
-        return <AppTitles username={username} />;
-    }
+    return <AppTitles username={username} />;
+    // switch (routeName) {
+    //   case "PlanosTreinoList":
+    //     return <AppTitles username={username} />;
+    //   case "ExerciciosList":
+    //     return <AppTitles username={username} />;
+    //   case "AulasGrupoList":
+    //     return <AppTitles username={username} />;
+    //   case "AccountConfig":
+    //     return <AppTitles username={username} />;
+    // }
   }
 
   return (
@@ -272,49 +308,85 @@ export default function AppNavigations() {
         name="PlanoTreinoDetails"
         component={PlanoTreinoDetails}
         options={({ route }) => ({
-          headerTitle: "Detalhes Plano Treino",
+          headerTitle: () => getHeaderTitle(route),
+          headerRight: () => (
+            <Button onPress={() => alert("Delete")}>
+              <IconsFA name="trash" size={30} color="#fff" />
+            </Button>
+          ),
+          headerStyle: {
+            backgroundColor: "#B72727",
+          },
         })}
       />
       <RootStack.Screen
         name="ExercicioDetails"
         component={ExercicioDetails}
         options={({ route }) => ({
-          headerTitle: "Detalhes Exercício",
+          headerTitle: () => getHeaderTitle(route),
+          headerRight: () => (
+            <Button onPress={() => alert("Delete")}>
+              <IconsFA name="trash" size={30} color="#fff" />
+            </Button>
+          ),
+          headerStyle: {
+            backgroundColor: "#B72727",
+          },
         })}
       />
       <RootStack.Screen
         name="AulaGrupoDetails"
         component={AulaGrupoDetails}
         options={({ route }) => ({
-          headerTitle: "Detalhes Aula Grupo",
+          headerTitle: () => getHeaderTitle(route),
+          headerRight: () => (
+            <Button onPress={() => alert("Delete")}>
+              <IconsFA name="trash" size={30} color="#fff" />
+            </Button>
+          ),
+          headerStyle: {
+            backgroundColor: "#B72727",
+          },
         })}
       />
       <RootStack.Screen
         name="AddPlanoTreino"
         component={AddPlanoTreino}
         options={({ route }) => ({
-          headerTitle: "Adicionar Plano Treino",
+          headerTitle: () => getHeaderTitle(route),
+          headerStyle: {
+            backgroundColor: "#B72727",
+          },
         })}
       />
       <RootStack.Screen
         name="AddExercicio"
         component={AddExercicio}
         options={({ route }) => ({
-          headerTitle: "Adicionar Exercicio",
+          headerTitle: () => getHeaderTitle(route),
+          headerStyle: {
+            backgroundColor: "#B72727",
+          },
         })}
       />
       <RootStack.Screen
         name="AddAulaGrupo"
         component={AddAulaGrupo}
         options={({ route }) => ({
-          headerTitle: "Adicionar Aula Grupo",
+          headerTitle: () => getHeaderTitle(route),
+          headerStyle: {
+            backgroundColor: "#B72727",
+          },
         })}
       />
       <RootStack.Screen
         name="DadosCorporais"
         component={DadosCorporaisConfig}
         options={({ route }) => ({
-          headerTitle: "Dados Corporais",
+          headerTitle: () => getHeaderTitle(route),
+          headerStyle: {
+            backgroundColor: "#B72727",
+          },
         })}
       />
     </RootStack.Navigator>

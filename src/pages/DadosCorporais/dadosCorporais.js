@@ -80,7 +80,7 @@ export default function dadosCorporais({ navigation }) {
     <View style={{ backgroundColor: "white", height: "100%" }}>
       <View style={styles.container}>
         <FlatList
-          data={dadosConta}
+          data={dadosCorporais}
           keyExtractor={({ id }, index) => id}
           renderItem={({ item }) => (
             <KeyboardAvoidingView
@@ -148,13 +148,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   input: {
-    height: 40,
+    height: 50,
     marginTop: "5%",
     flexDirection: "row",
     alignSelf: "center",
     width: "100%",
-    borderWidth: 2,
-    paddingTop: 2,
+    borderWidth: 1,
     paddingHorizontal: 10,
     borderColor: "#B72727",
     borderRadius: 7,
