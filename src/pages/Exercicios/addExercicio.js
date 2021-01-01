@@ -1,5 +1,6 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TextInput,
   StyleSheet,
@@ -7,44 +8,72 @@ import {
   Text,
   KeyboardAvoidingView,
   ScrollView,
+  BackHandler,
 } from "react-native";
 import { Button } from "react-native-paper";
 
 import { database } from "../../constant/database";
 
-function AddExercicio(props, navigation) {
+function AddExercicio({ navigation }) {
   const uri =
     "http://" + database.ip + ":" + database.port + "/php/insertExercicio.php";
 
+  const [userId, setUserId] = useState("");
   const [nome, setNome] = useState("");
   const [zonaMuscular, setZonaMuscular] = useState("");
 
-  const add = async () => {
+  async function getAsyncUser() {
     try {
-      const resp = await fetch(uri, {
+      let id = await AsyncStorage.getItem("user_id");
+      id = JSON.parse(id);
+
+      if (id != null) {
+        setUserId(id);
+      }
+    } catch (error) {
+      alert(error);
+    }
+  }
+
+  function add() {
+    if (nome != "" && zonaMuscular != "") {
+      fetch(uri, {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ nome: nome, zonaMuscular: zonaMuscular }),
-      });
-      const json = await resp.json();
-      switch (json) {
-        case "register_success":
-          props.navigation.navigate("ExerciciosList");
-          break;
-        case "server_error":
-          alert("Server error");
-          break;
-        case "bd_error":
-          alert("Exercício já registado");
-          break;
-      }
-    } catch (e) {
-      alert("erro on login..." + e.message);
+        body: JSON.stringify({
+          userId: userId,
+          nome: nome,
+          zonaMuscular: zonaMuscular,
+        }),
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          if (json.message == "success") {
+            alert("Exercício registado com sucesso!");
+            navigation.navigate("ExerciciosList");
+          }
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    } else {
+      alert("Preencha todos os campos!");
     }
-  };
+  }
+
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", () => true);
+    return () =>
+      BackHandler.removeEventListener("hardwareBackPress", () => true);
+  }, []);
+
+  useEffect(() => {
+    getAsyncUser();
+  }, []);
+
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
       <KeyboardAvoidingView
@@ -54,7 +83,6 @@ function AddExercicio(props, navigation) {
         <ScrollView>
           <StatusBar style="auto" />
           <Text style={styles.pageTitle}>Criar Exercício</Text>
-
           <TextInput
             placeholder="Nome Exercício"
             style={styles.input}

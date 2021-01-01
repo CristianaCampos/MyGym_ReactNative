@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import {
@@ -14,8 +15,9 @@ import { Button } from "react-native-paper";
 
 import { database } from "../../../constant/database";
 
-function Register(props) {
-  const uri = "http://" + database.ip + ":" + database.port + "/php/login.php";
+export default function Register({ navigation }) {
+  const uri =
+    "http://" + database.ip + ":" + database.port + "/php/insertUser.php";
 
   const [nome, setNome] = useState("");
   const [nomeUtilizador, setNomeUtilizador] = useState("");
@@ -23,29 +25,76 @@ function Register(props) {
   const [contacto, setContacto] = useState("");
   const [pass, setPass] = useState("");
 
-  const register = async () => {
+  // const register = async () => {
+  //   try {
+  //     const resp = await fetch(uri, {
+  //       method: "POST",
+  //       headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ nome, nomeUtilizador, email, contacto, pass }),
+  //     });
+  //     const json = await resp.json();
+  //     switch (json) {
+  //       case "register_success":
+  //         props.navigation.navigate("Main");
+  //         break;
+  //       case "server_error":
+  //         alert("Server error");
+  //         break;
+  //     }
+  //   } catch (e) {
+  //     alert("erro on login...", e.message);
+  //   }
+  // };
+
+  const saveUserId = async (userId) => {
     try {
-      const resp = await fetch(uri, {
+      const value = JSON.stringify(userId);
+      await AsyncStorage.setItem("user_id", value);
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  function register() {
+    if (
+      nome != "" &&
+      nomeUtilizador != "" &&
+      email != "" &&
+      contacto != "" &&
+      pass != ""
+    ) {
+      fetch(uri, {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ nome, nomeUtilizador, email, contacto, pass }),
-      });
-      const json = await resp.json();
-      switch (json) {
-        case "register_success":
-          props.navigation.navigate("Main");
-          break;
-        case "server_error":
-          alert("Server error");
-          break;
-      }
-    } catch (e) {
-      alert("erro on login...", e.message);
+        body: JSON.stringify({
+          nome: nome,
+          nomeUtilizador: nomeUtilizador,
+          email: email,
+          contacto: contacto,
+          pass: pass,
+        }),
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          if (json.message == "success") {
+            saveUserId(json.user_id);
+            navigation.navigate("Main");
+          }
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    } else {
+      alert("Preencha todos os campos!");
     }
-  };
+  }
+
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
       <KeyboardAvoidingView
@@ -150,4 +199,3 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 });
-export default Register;

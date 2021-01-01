@@ -56,12 +56,12 @@ export default function aulaGrupoList({ navigation }) {
 
   useEffect(() => {
     getAsyncUser();
-  });
+  }, []);
 
   useEffect(() => {
-    loadAulas();
-  });
-
+    loadAulas(); // e agora?
+  }, []);
+  //já não está a dar o erro. pelo menos na pag da lista dos planos. boooaa, acho que é isto mesmo
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
       <View style={styles.container}>
@@ -69,6 +69,7 @@ export default function aulaGrupoList({ navigation }) {
         <StatusBar style="auto" />
         <FlatList
           data={aulas}
+          extraData={loadAulas()}
           keyExtractor={({ id }, index) => id}
           renderItem={({ item }) => (
             <Card

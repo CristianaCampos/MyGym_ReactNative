@@ -26,8 +26,8 @@ export default function planoTreinoList({ navigation }) {
     }
   }
 
-  function loadPlanos() {
-    fetch(uri, {
+  async function loadPlanos() {
+    await fetch(uri, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -56,11 +56,11 @@ export default function planoTreinoList({ navigation }) {
 
   useEffect(() => {
     getAsyncUser();
-  });
+  }, []);
 
   useEffect(() => {
     loadPlanos();
-  });
+  }, []);
 
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
@@ -70,6 +70,7 @@ export default function planoTreinoList({ navigation }) {
         <FlatList
           data={planos}
           keyExtractor={({ id }, index) => id}
+          extraData={loadPlanos()}
           renderItem={({ item }) => (
             <Card
               onPress={() =>

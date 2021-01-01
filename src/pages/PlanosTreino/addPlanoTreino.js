@@ -15,6 +15,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 import { Picker } from "@react-native-picker/picker";
 
 import { database } from "../../constant/database";
+import { ScrollView } from "react-native-gesture-handler";
 
 export default function AddPlanoTreino({ navigation }) {
   const uri =
@@ -24,11 +25,20 @@ export default function AddPlanoTreino({ navigation }) {
     database.port +
     "/php/getExerciciosPlanos.php";
 
+  const uriAdd =
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/php/insertPlanoTreino.php";
+
   const [userId, setUserId] = useState("");
   const [exercicios, setExercicios] = useState([]);
 
-  const [dia, setDia] = useState("seg");
-  const [exercicio, setExercicio] = useState("");
+  const [nome, setNome] = useState("");
+  const [diaSemana, setDiaSemana] = useState("---");
+  const [exercicio1, setExercicio1] = useState("");
+  const [exercicio2, setExercicio2] = useState("");
 
   async function getAsyncUser() {
     try {
@@ -77,87 +87,136 @@ export default function AddPlanoTreino({ navigation }) {
 
   useEffect(() => {
     loadExercicios();
-    // https://stackoverflow.com/questions/34252982/looping-json-display-in-react-native
   }, []);
 
+  function add() {
+    if (nome != "" && diaSemana != "---") {
+      fetch(uriAdd, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: userId,
+          nome: nome,
+          diaSemana: diaSemana,
+          exercicio1: exercicio1,
+          exercicio2: exercicio2,
+        }),
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          if (json.message == "success") {
+            alert("Plano registado com sucesso!");
+            navigation.navigate("PlanosTreinoList");
+          } else {
+            alert("Erro");
+          }
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    } else {
+      alert("Preencha todos os campos!");
+    }
+  }
+
   let myExercicios = exercicios.map((myValue, myIndex) => {
-    return <Picker.Item label={myValue.nome} value={myIndex} key={myIndex} />;
+    return (
+      <Picker.Item label={myValue.nome} value={myValue.nome} key={myIndex} />
+    );
   });
 
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
-      {/* <KeyboardAvoidingView
+      <KeyboardAvoidingView
         behavior={Platform.OS == "ios" ? "padding" : "height"}
         style={styles.container}
-      > */}
-      <View style={styles.container}>
-        <StatusBar style="auto" />
-        <Text style={styles.pageTitle}>Criar Plano Treino</Text>
-        <TextInput
-          placeholder="Nome Plano"
-          style={styles.input}
-          onChangeText={(text) => setNome(text)}
-        ></TextInput>
-        <DropDownPicker
-          items={[
-            {
-              label: "Segunda-Feira",
-              value: "seg",
-            },
-            {
-              label: "Terça-Feira",
-              value: "ter",
-            },
-            {
-              label: "Quarta-Feira",
-              value: "qua",
-            },
-            {
-              label: "Quinta-Feira",
-              value: "qui",
-            },
-            {
-              label: "Sexta-Feira",
-              value: "sex",
-            },
-            {
-              label: "Sábado",
-              value: "sab",
-            },
-            {
-              label: "Domingo",
-              value: "dom",
-            },
-          ]}
-          defaultValue={dia}
-          containerStyle={{ height: 50, marginTop: "5%" }}
-          style={{
-            backgroundColor: "#fff",
-            borderColor: "#B72727",
-            fontFamily: "Poppins_Regular",
-          }}
-          itemStyle={{
-            justifyContent: "flex-start",
-            fontFamily: "Poppins_Regular",
-          }}
-          dropDownStyle={{
-            backgroundColor: "#fff",
-          }}
-          onChangeItem={(item) => setDia(item.value)}
-        />
-        <Text style={styles.textExercicios}>Exercícios</Text>
-        <Picker
-          mode="dropdown"
-          selectedValue={exercicio}
-          onValueChange={(value) => setExercicio(value)}
-        >
-          {myExercicios}
-        </Picker>
-        <Button mode="contained" style={styles.btnLogin}>
-          {/*onPress={() => add()}*/}
-          <Text style={styles.btnTextLogin}>Criar Plano Treino</Text>
-        </Button>
-      </View>
+      >
+        <ScrollView>
+          <StatusBar style="auto" />
+          <Text style={styles.pageTitle}>Criar Plano Treino</Text>
+          <TextInput
+            placeholder="Nome Plano"
+            style={styles.input}
+            onChangeText={(text) => setNome(text)}
+          ></TextInput>
+          <DropDownPicker
+            items={[
+              {
+                label: "---",
+                value: "---",
+              },
+              {
+                label: "Segunda-Feira",
+                value: "Segunda-Feira",
+              },
+              {
+                label: "Terça-Feira",
+                value: "Terça-Feira",
+              },
+              {
+                label: "Quarta-Feira",
+                value: "Quarta-Feira",
+              },
+              {
+                label: "Quinta-Feira",
+                value: "Quinta-Feira",
+              },
+              {
+                label: "Sexta-Feira",
+                value: "Sexta-Feira",
+              },
+              {
+                label: "Sábado",
+                value: "Sábado",
+              },
+              {
+                label: "Domingo",
+                value: "Domingo",
+              },
+            ]}
+            defaultValue={diaSemana}
+            containerStyle={{ height: 50, marginTop: "5%" }}
+            style={{
+              backgroundColor: "#fff",
+              borderColor: "#B72727",
+              fontFamily: "Poppins_Regular",
+            }}
+            itemStyle={{
+              justifyContent: "flex-start",
+              fontFamily: "Poppins_Regular",
+            }}
+            dropDownStyle={{
+              backgroundColor: "#fff",
+            }}
+            onChangeItem={(item) => setDiaSemana(item.value)}
+          />
+          <Text style={styles.textExercicios}>Exercícios</Text>
+          <Picker
+            mode="dropdown"
+            selectedValue={exercicio1}
+            onValueChange={(value, index) => setExercicio1(value)}
+          >
+            {myExercicios}
+          </Picker>
+          <Picker
+            mode="dropdown"
+            selectedValue={exercicio2}
+            onValueChange={(value, index) => setExercicio2(value)}
+          >
+            {myExercicios}
+          </Picker>
+          <Button
+            mode="contained"
+            style={styles.btnLogin}
+            onPress={() => add()}
+          >
+            <Text style={styles.btnTextLogin}>Criar Plano Treino</Text>
+          </Button>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }

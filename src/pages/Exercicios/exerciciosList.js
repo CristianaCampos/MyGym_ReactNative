@@ -56,11 +56,11 @@ export default function exercicioList({ navigation }) {
 
   useEffect(() => {
     getAsyncUser();
-  });
+  }, []);
 
   useEffect(() => {
     loadExercises();
-  });
+  }, []);
 
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
@@ -69,6 +69,7 @@ export default function exercicioList({ navigation }) {
         <StatusBar style="auto" />
         <FlatList
           data={exercises}
+          extraData={loadExercises()}
           keyExtractor={({ id }, index) => id}
           renderItem={({ item }) => (
             <Card

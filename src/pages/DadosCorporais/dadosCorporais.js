@@ -24,8 +24,36 @@ export default function dadosCorporais({ navigation }) {
     database.port +
     "/php/getDadosCorporais.php";
 
+  const uriEdit =
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/php/editDadosCorporais.php";
+
   const [userId, setUserId] = useState("");
-  const [dadosCorporais, setDadosCorporais] = useState([]);
+
+  const [peso, setPeso] = useState("");
+  const [altura, setAltura] = useState("");
+  const [massaMagra, setMassaMagra] = useState("");
+  const [massaGorda, setMassaGorda] = useState("");
+  const [massaHidrica, setMassaHidrica] = useState("");
+
+  const [visible, setVisible] = useState(false);
+  const [buttonEdit, setButtonEdit] = useState(false);
+  const [buttonFab, setButtonFab] = useState(true);
+
+  function ativarVisible() {
+    setVisible(!visible);
+    setButtonFab(!buttonFab);
+    setButtonEdit(!buttonEdit);
+  }
+
+  function desativarVisible() {
+    setVisible(!visible);
+    setButtonFab(!buttonFab);
+    setButtonEdit(!buttonEdit);
+  }
 
   async function getAsyncUser() {
     try {
@@ -54,7 +82,11 @@ export default function dadosCorporais({ navigation }) {
       .then((response) => response.json())
       .then((json) => {
         if (json.message == "success") {
-          setDadosCorporais(json.dadosCorporais);
+          setPeso(json.dadosCorporais[0].peso);
+          setAltura(json.dadosCorporais[0].altura);
+          setMassaMagra(json.dadosCorporais[0].massaMagra);
+          setMassaGorda(json.dadosCorporais[0].massaGorda);
+          setMassaHidrica(json.dadosCorporais[0].massaHidrica);
         }
       })
       .catch((error) => {
@@ -70,61 +102,151 @@ export default function dadosCorporais({ navigation }) {
 
   useEffect(() => {
     getAsyncUser();
-  });
+  }, []);
 
   useEffect(() => {
     loadDados();
-  });
+  }, []);
+
+  function edit() {
+    fetch(uriEdit, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        peso: peso,
+        altura: altura,
+        massaMagra: massaMagra,
+        massaGorda: massaGorda,
+        massaHidrica: massaHidrica,
+        userId: JSON.stringify(userId),
+      }),
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.message == "success") {
+          alert("Dados atualizados com sucesso!");
+          desativarVisible();
+          loadDados();
+        }
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }
 
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
-      <View style={styles.container}>
-        <FlatList
-          data={dadosCorporais}
-          keyExtractor={({ id }, index) => id}
-          renderItem={({ item }) => (
-            <KeyboardAvoidingView
-              behavior={Platform.OS == "ios" ? "padding" : "height"}
-            >
-              <StatusBar style="auto" />
-              <Text style={styles.pageTitle}>Dados Corporais</Text>
-              <Image
-                source={require("../../../assets/iconPerfil.png")}
-                style={styles.imgPerfil}
-              />
-              <Text style={styles.meunome}>{item.nome}</Text>
-              <Text style={styles.meunome}>@{item.nomeUtilizador}</Text>
-              <TextInput value={item.peso} style={styles.input}></TextInput>
-              <TextInput value={item.altura} style={styles.input}></TextInput>
+      <KeyboardAvoidingView
+        behavior={Platform.OS == "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <ScrollView>
+          <StatusBar style="auto" />
+          <Text style={styles.pageTitle}>Dados Corporais</Text>
+          <Image
+            source={require("../../../assets/iconPerfil.png")}
+            style={styles.imgPerfil}
+          />
+          {visible ? (
+            <View>
+              <Text style={styles.textInput}>Peso</Text>
               <TextInput
-                value={item.massaMagra}
+                defaultValue={peso}
                 style={styles.input}
+                onChangeText={(txt) => setPeso(txt)}
               ></TextInput>
+              <Text style={styles.textInput}>Altura</Text>
               <TextInput
-                value={item.massaGorda}
+                defaultValue={altura}
                 style={styles.input}
+                onChangeText={(txt) => setAltura(txt)}
               ></TextInput>
+              <Text style={styles.textInput}>Massa Magra</Text>
               <TextInput
-                value={item.massaHidrica}
+                defaultValue={massaMagra}
                 style={styles.input}
+                onChangeText={(txt) => setMassaMagra(txt)}
               ></TextInput>
-              <TextInput value={item.IMC} style={styles.input}></TextInput>
-            </KeyboardAvoidingView>
+              <Text style={styles.textInput}>Massa Gorda</Text>
+              <TextInput
+                defaultValue={massaGorda}
+                style={styles.input}
+                onChangeText={(txt) => setMassaGorda(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Massa Hidrica</Text>
+              <TextInput
+                defaultValue={massaHidrica}
+                style={styles.input}
+                onChangeText={(txt) => setMassaHidrica(txt)}
+              ></TextInput>
+            </View>
+          ) : (
+            <View>
+              <Text style={styles.textInput}>Peso</Text>
+              <TextInput
+                defaultValue={peso}
+                style={styles.inputGrey}
+                onChangeText={(txt) => setPeso(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Altura</Text>
+              <TextInput
+                defaultValue={altura}
+                style={styles.inputGrey}
+                onChangeText={(txt) => setAltura(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Massa Magra</Text>
+              <TextInput
+                defaultValue={massaMagra}
+                style={styles.inputGrey}
+                onChangeText={(txt) => setMassaMagra(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Massa Gorda</Text>
+              <TextInput
+                defaultValue={massaGorda}
+                style={styles.inputGrey}
+                onChangeText={(txt) => setMassaGorda(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Massa Hidrica</Text>
+              <TextInput
+                defaultValue={massaHidrica}
+                style={styles.inputGrey}
+                onChangeText={(txt) => setMassaHidrica(txt)}
+              ></TextInput>
+            </View>
           )}
-        />
-        <Button
-          mode="contained"
-          // onPress={() => navigation.navigate("Main")}
-          style={styles.btnLogin}
-        >
-          <Text style={styles.btnTextLogin}>Atualizar Dados</Text>
-        </Button>
-      </View>
+          {buttonEdit ? (
+            <Button
+              mode="contained"
+              style={styles.btnLogin}
+              onPress={() => edit()}
+            >
+              <Text style={styles.btnTextLogin}>Atualizar Dados</Text>
+            </Button>
+          ) : null}
+          {buttonFab ? (
+            <FAB
+              style={styles.fab}
+              icon="square-edit-outline"
+              onPress={() => ativarVisible()}
+            />
+          ) : null}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  fab: {
+    backgroundColor: "#B72727",
+    position: "absolute",
+    margin: 16,
+    right: 0,
+    bottom: 20,
+  },
   container: {
     height: "100%",
     marginHorizontal: "5%",
@@ -142,14 +264,14 @@ const styles = StyleSheet.create({
     marginTop: "5%",
     resizeMode: "contain",
   },
-  meunome: {
+  textInput: {
     fontFamily: "Poppins_Regular",
     fontSize: 15,
-    textAlign: "center",
+    marginTop: "5%",
   },
   input: {
     height: 50,
-    marginTop: "5%",
+    marginTop: "2%",
     flexDirection: "row",
     alignSelf: "center",
     width: "100%",
@@ -159,6 +281,20 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     fontSize: 15,
     fontFamily: "Poppins_Regular",
+  },
+  inputGrey: {
+    height: 50,
+    marginTop: "2%",
+    flexDirection: "row",
+    alignSelf: "center",
+    width: "100%",
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    borderColor: "#B72727",
+    borderRadius: 7,
+    fontSize: 15,
+    fontFamily: "Poppins_Regular",
+    color: "grey",
   },
   btnLogin: {
     backgroundColor: "#B72727",

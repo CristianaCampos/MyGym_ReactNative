@@ -12,6 +12,7 @@ import {
   BackHandler,
 } from "react-native";
 import { Button } from "react-native-paper";
+import { FAB } from "react-native-paper";
 import { database } from "../../constant/database";
 
 export default function AccountConfig({ navigation }) {
@@ -29,6 +30,24 @@ export default function AccountConfig({ navigation }) {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
 
+  const [dadosConta, setDadosConta] = useState([]);
+
+  const [visible, setVisible] = useState(false);
+  const [buttonEdit, setButtonEdit] = useState(false);
+  const [buttonFab, setButtonFab] = useState(true);
+
+  function ativarVisible() {
+    setVisible(!visible);
+    setButtonFab(!buttonFab);
+    setButtonEdit(!buttonEdit);
+  }
+
+  function desativarVisible() {
+    setVisible(!visible);
+    setButtonFab(!buttonFab);
+    setButtonEdit(!buttonEdit);
+  }
+
   async function getAsyncUser() {
     try {
       let id = await AsyncStorage.getItem("user_id");
@@ -38,34 +57,40 @@ export default function AccountConfig({ navigation }) {
         setUserId(id);
       }
     } catch (error) {
-      alert(error);
+      alert(error.message);
     }
   }
 
   function loadDados() {
-    fetch(uri, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: JSON.stringify(userId),
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.message == "success") {
-          setNome(json.dadosConta[0].nome);
-          setNomeUtilizador(json.dadosConta[0].nomeUtilizador);
-          setEmail(json.dadosConta[0].email);
-          setContacto(json.dadosConta[0].contacto);
-          setPass(json.dadosConta[0].pass);
-        }
+    try {
+      fetch(uri, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: JSON.stringify(userId),
+        }),
       })
-      .catch((error) => {
-        alert(error);
-      });
+        .then((response) => response.json())
+        .then((json) => {
+          if (json.message == "success") {
+            setNome(json.dadosConta[0].nome);
+            setNomeUtilizador(json.dadosConta[0].nomeUtilizador);
+            setEmail(json.dadosConta[0].email);
+            setContacto(json.dadosConta[0].contacto);
+            setPass(json.dadosConta[0].pass);
+            setDadosConta(json.dadosConta);
+            console.log(dadosConta);
+          }
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
   useEffect(() => {
@@ -99,87 +124,125 @@ export default function AccountConfig({ navigation }) {
     })
       .then((response) => response.json())
       .then((json) => {
-        if (json.message == "update_success") {
+        if (json.message == "success") {
+          alert("Dados atualizados com sucesso!");
+          desativarVisible();
           loadDados();
         }
       })
       .catch((error) => {
         alert(error);
       });
-    // const resp = await fetch(uriEdit, {
-    //   method: "POST",
-    //   headers: {
-    //     Accept: "application/json",
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     nome: nome,
-    //     email: email,
-    //     contacto: contacto,
-    //     pass: pass,
-    //   }),
-    // });
-    // const json = await resp.json();
-    // switch (json) {
-    //   case "update_success":
-    //     props.navigation.navigate("AccountConfig");
-    //     break;
-    //   case "server_error":
-    //     alert("Server error");
-    //     break;
-    // }
   }
 
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
-      <View style={styles.container}>
-        <StatusBar style="auto" />
-        <Text style={styles.pageTitle}>Definições da Conta</Text>
-        <View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS == "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <ScrollView>
+          <StatusBar style="auto" />
+          <Text style={styles.pageTitle}>Definições da Conta</Text>
           <Image
             source={require("../../../assets/iconPerfil.png")}
             style={styles.imgPerfil}
           />
-          <KeyboardAvoidingView
-            behavior={Platform.OS == "ios" ? "padding" : "height"}
-          >
-            <Text style={styles.meunome}>{nome}</Text>
-            <Text style={styles.meunome}>@{nomeUtilizador}</Text>
-            <TextInput
-              defaultValue={nome}
-              style={styles.input}
-              onChangeText={(txt) => setNome(txt)}
-            ></TextInput>
-            <TextInput
-              defaultValue={email}
-              style={styles.input}
-              onChangeText={(txt) => setEmail(txt)}
-            ></TextInput>
-            <TextInput
-              defaultValue={contacto}
-              style={styles.input}
-              onChangeText={(txt) => setContacto(txt)}
-            ></TextInput>
-            <TextInput
-              defaultValue={pass}
-              style={styles.input}
-              onChangeText={(txt) => setPass(txt)}
-            ></TextInput>
-          </KeyboardAvoidingView>
-          <Button
-            mode="contained"
-            onPress={() => edit()}
-            style={styles.btnLogin}
-          >
-            <Text style={styles.btnTextLogin}>Atualizar Dados</Text>
-          </Button>
-        </View>
-      </View>
+          <Text style={styles.meunome}>{nome}</Text>
+          <Text style={styles.meunome}>@{nomeUtilizador}</Text>
+          {visible ? (
+            <View>
+              <Text style={styles.textInput}>Nome</Text>
+              <TextInput
+                defaultValue={nome}
+                editable={visible}
+                style={styles.input}
+                onChangeText={(txt) => setNome(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Email</Text>
+              <TextInput
+                defaultValue={email}
+                editable={visible}
+                style={styles.input}
+                onChangeText={(txt) => setEmail(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Contacto</Text>
+              <TextInput
+                defaultValue={contacto}
+                editable={visible}
+                style={styles.input}
+                onChangeText={(txt) => setContacto(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Password</Text>
+              <TextInput
+                defaultValue={pass}
+                editable={visible}
+                style={styles.input}
+                onChangeText={(txt) => setPass(txt)}
+              ></TextInput>
+            </View>
+          ) : (
+            <View>
+              <Text style={styles.textInput}>Nome</Text>
+              <TextInput
+                defaultValue={nome}
+                editable={visible}
+                style={styles.inputGrey}
+                onChangeText={(txt) => setNome(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Email</Text>
+              <TextInput
+                defaultValue={email}
+                editable={visible}
+                style={styles.inputGrey}
+                onChangeText={(txt) => setEmail(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Contacto</Text>
+              <TextInput
+                defaultValue={contacto}
+                editable={visible}
+                style={styles.inputGrey}
+                onChangeText={(txt) => setContacto(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Password</Text>
+              <TextInput
+                defaultValue={pass}
+                editable={visible}
+                style={styles.inputGrey}
+                onChangeText={(txt) => setPass(txt)}
+              ></TextInput>
+            </View>
+          )}
+          {buttonEdit ? (
+            <Button
+              mode="contained"
+              style={styles.btnLogin}
+              onPress={() => edit()}
+            >
+              <Text style={styles.btnTextLogin}>Atualizar Dados</Text>
+            </Button>
+          ) : null}
+          {buttonFab ? (
+            <FAB
+              style={styles.fab}
+              icon="square-edit-outline"
+              onPress={() => ativarVisible()}
+            />
+          ) : null}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  fab: {
+    backgroundColor: "#B72727",
+    position: "absolute",
+    margin: 16,
+    right: 0,
+    bottom: 20,
+  },
   container: {
     flex: 1,
     height: "100%",
@@ -205,7 +268,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    marginTop: "5%",
+    marginTop: "2%",
     flexDirection: "row",
     alignSelf: "center",
     width: "100%",
@@ -215,6 +278,25 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     fontSize: 15,
     fontFamily: "Poppins_Regular",
+  },
+  textInput: {
+    fontFamily: "Poppins_Regular",
+    fontSize: 15,
+    marginTop: "5%",
+  },
+  inputGrey: {
+    height: 50,
+    marginTop: "2%",
+    flexDirection: "row",
+    alignSelf: "center",
+    width: "100%",
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    borderColor: "#B72727",
+    borderRadius: 7,
+    fontSize: 15,
+    fontFamily: "Poppins_Regular",
+    color: "grey",
   },
   btnLogin: {
     backgroundColor: "#B72727",

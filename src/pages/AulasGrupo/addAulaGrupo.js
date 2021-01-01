@@ -1,5 +1,6 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TextInput,
   StyleSheet,
@@ -7,46 +8,72 @@ import {
   Text,
   ScrollView,
   KeyboardAvoidingView,
+  BackHandler,
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { Button } from "react-native-paper";
 import { database } from "../../constant/database";
 
-export default function AddAulaGrupo({ props, navigation }) {
+function AddAulaGrupo({ navigation }) {
   const uri =
     "http://" + database.ip + ":" + database.port + "/php/insertAulaGrupo.php";
 
+  const [userId, setUserId] = useState("");
   const [nome, setNome] = useState("");
-  const [diaSemana, setDiaSemana] = useState("");
+  const [diaSemana, setDiaSemana] = useState("---");
 
-  const [dia, setDia] = useState("seg");
-
-  const add = async () => {
+  async function getAsyncUser() {
     try {
-      const resp = await fetch(uri, {
+      let id = await AsyncStorage.getItem("user_id");
+      id = JSON.parse(id);
+
+      if (id != null) {
+        setUserId(id);
+      }
+    } catch (error) {
+      alert(error);
+    }
+  }
+
+  function add() {
+    if (nome != "" && diaSemana != "---") {
+      fetch(uri, {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ nome, diaSemana }),
-      });
-      const json = await resp.json();
-      switch (json) {
-        case "register_success":
-          props.navigation.navigate("AulasGrupoList");
-          break;
-        case "server_error":
-          alert("Server error");
-          break;
-        case "bd_error":
-          alert("Aula já registada");
-          break;
-      }
-    } catch (e) {
-      alert("erro on login..." + e.message);
+        body: JSON.stringify({
+          userId: userId,
+          nome: nome,
+          diaSemana: diaSemana,
+        }),
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          if (json.message == "success") {
+            alert("Aula registada com sucesso!");
+            navigation.navigate("AulasGrupoList");
+          }
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    } else {
+      alert("Preencha todos os campos!");
     }
-  };
+  }
+
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", () => true);
+    return () =>
+      BackHandler.removeEventListener("hardwareBackPress", () => true);
+  }, []);
+
+  useEffect(() => {
+    getAsyncUser();
+  }, []);
+
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
       <KeyboardAvoidingView
@@ -64,36 +91,40 @@ export default function AddAulaGrupo({ props, navigation }) {
           <DropDownPicker
             items={[
               {
+                label: "---",
+                value: "---",
+              },
+              {
                 label: "Segunda-Feira",
-                value: "seg",
+                value: "Segunda-Feira",
               },
               {
                 label: "Terça-Feira",
-                value: "ter",
+                value: "Terça-Feira",
               },
               {
                 label: "Quarta-Feira",
-                value: "qua",
+                value: "Quarta-Feira",
               },
               {
                 label: "Quinta-Feira",
-                value: "qui",
+                value: "Quinta-Feira",
               },
               {
                 label: "Sexta-Feira",
-                value: "sex",
+                value: "Sexta-Feira",
               },
               {
                 label: "Sábado",
-                value: "sab",
+                value: "saSábadob",
               },
               {
                 label: "Domingo",
-                value: "dom",
+                value: "Domingo",
               },
             ]}
-            defaultValue={dia}
-            containerStyle={{ height: 40, marginTop: "5%" }}
+            defaultValue={diaSemana}
+            containerStyle={{ height: 50, marginTop: "5%" }}
             style={{
               backgroundColor: "#fff",
               borderColor: "#B72727",
@@ -102,7 +133,7 @@ export default function AddAulaGrupo({ props, navigation }) {
               justifyContent: "flex-start",
             }}
             dropDownStyle={{ backgroundColor: "#fff" }}
-            onChangeItem={(item) => setDia(item.value)}
+            onChangeItem={(item) => setDiaSemana(item.value)}
           />
           <Button
             mode="contained"
@@ -159,3 +190,4 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_Regular",
   },
 });
+export default AddAulaGrupo;
