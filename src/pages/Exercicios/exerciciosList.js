@@ -4,6 +4,9 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, FlatList, BackHandler } from "react-native";
 import { Button, Card } from "react-native-paper";
 import { FAB } from "react-native-paper";
+
+import ListExercicios from "../../components/Lists/ListExercicios";
+
 import { database } from "../../constant/database";
 
 export default function exercicioList({ navigation }) {
@@ -55,12 +58,13 @@ export default function exercicioList({ navigation }) {
   }, []);
 
   useEffect(() => {
-    getAsyncUser();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", (e) => {
+      getAsyncUser();
+      loadExercises();
+    });
 
-  useEffect(() => {
-    loadExercises();
-  }, []);
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
@@ -72,23 +76,13 @@ export default function exercicioList({ navigation }) {
           extraData={loadExercises()}
           keyExtractor={({ id }, index) => id}
           renderItem={({ item }) => (
-            <Card
-              onPress={() =>
-                navigation.navigate("ExercicioDetails", {
-                  id: item.id,
-                })
-              }
-              style={styles.rectangleView}
-            >
-              <View
-                style={{
-                  padding: 10,
-                }}
-              >
-                <Text style={styles.nomeText}>{item.nome}</Text>
-                <Text style={styles.zonaMuscularText}>{item.zonaMuscular}</Text>
-              </View>
-            </Card>
+            <ListExercicios
+              id={item.id}
+              nome={item.nome}
+              zonaMuscular={item.zonaMuscular}
+              exercicio={item}
+              navigation={navigation}
+            />
           )}
         />
         <FAB
@@ -118,25 +112,5 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_Bold",
     marginTop: "3%",
     textAlign: "center",
-  },
-  rectangleView: {
-    flexDirection: "column",
-    shadowColor: "#B72727",
-    shadowOpacity: 0.5,
-    backgroundColor: "#B72727",
-    borderWidth: 1,
-    marginTop: "5%",
-    borderColor: "#B72727",
-    borderRadius: 7,
-  },
-  nomeText: {
-    color: "white",
-    fontSize: 18,
-    fontFamily: "Poppins_Regular",
-  },
-  zonaMuscularText: {
-    color: "rgba(255,255,255,0.8)",
-    fontSize: 15,
-    fontFamily: "Poppins_Regular",
   },
 });

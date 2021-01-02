@@ -15,7 +15,7 @@ import { FAB } from "react-native-paper";
 
 import { database } from "../../constant/database";
 
-export default function DetailsExercicio({ route }) {
+export default function DetailsExercicio({ route, navigation }) {
   const uri =
     "http://" +
     database.ip +
@@ -26,7 +26,7 @@ export default function DetailsExercicio({ route }) {
   const uriEdit =
     "http://" + database.ip + ":" + database.port + "/php/editExercicio.php";
 
-  const { id } = route.params;
+  const { exercicio } = route.params;
 
   const [userId, setUserId] = useState("");
   const [nome, setNome] = useState("");
@@ -48,41 +48,54 @@ export default function DetailsExercicio({ route }) {
     setButtonEdit(!buttonEdit);
   }
 
-  async function getAsyncUser() {
-    try {
-      let id = await AsyncStorage.getItem("user_id");
-      id = JSON.parse(id);
+  // async function getAsyncUser() {
+  //   try {
+  //     let id = await AsyncStorage.getItem("user_id");
+  //     id = JSON.parse(id);
 
-      if (id != null) {
-        setUserId(id);
-      }
-    } catch (error) {
-      alert(error);
-    }
+  //     if (id != null) {
+  //       setUserId(id);
+  //     }
+  //   } catch (error) {
+  //     alert(error);
+  //   }
+  // }
+
+  // function loadExercise() {
+  //   fetch(uri, {
+  //     method: "POST",
+  //     headers: {
+  //       Accept: "application/json",
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({
+  //       userId: userId,
+  //       exerciseId: id,
+  //     }),
+  //   })
+  //     .then((response) => response.json())
+  //     .then((json) => {
+  //       if (json.message == "success") {
+  //         setNome(json.exercise[0].nome);
+  //         setZonaMuscular(json.exercise[0].zonaMuscular);
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       alert(error);
+  //     });
+  // }
+
+  function getNome() {
+    setNome(exercicio.nome);
   }
 
-  function loadExercise() {
-    fetch(uri, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: userId,
-        exerciseId: id,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.message == "success") {
-          setNome(json.exercise[0].nome);
-          setZonaMuscular(json.exercise[0].zonaMuscular);
-        }
-      })
-      .catch((error) => {
-        alert(error);
-      });
+  function getZonaMuscular() {
+    setZonaMuscular(exercicio.zonaMuscular);
+  }
+
+  function getData() {
+    getNome();
+    getZonaMuscular();
   }
 
   useEffect(() => {
@@ -92,38 +105,38 @@ export default function DetailsExercicio({ route }) {
   }, []);
 
   useEffect(() => {
-    getAsyncUser();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", (e) => {
+      getData();
+    });
 
-  useEffect(() => {
-    loadExercise();
-  }, []);
+    return unsubscribe;
+  }, [navigation]);
 
   function edit() {
-    fetch(uriEdit, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nome: nome,
-        zonaMuscular: zonaMuscular,
-        userId: JSON.stringify(userId),
-        exerciseId: id,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.message == "success") {
-          alert("Exercício atualizado com sucesso!");
-          desativarVisible();
-          loadExercise();
-        }
-      })
-      .catch((error) => {
-        alert(error);
-      });
+    alert("oi");
+    // fetch(uriEdit, {
+    //   method: "POST",
+    //   headers: {
+    //     Accept: "application/json",
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     nome: nome,
+    //     zonaMuscular: zonaMuscular,
+    //     userId: JSON.stringify(),
+    //     exerciseId: id,
+    //   }),
+    // })
+    //   .then((response) => response.json())
+    //   .then((json) => {
+    //     if (json.message == "success") {
+    //       alert("Exercício atualizado com sucesso!");
+    //       desativarVisible();
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     alert(error);
+    //   });
   }
 
   return (

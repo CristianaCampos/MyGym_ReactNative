@@ -36,6 +36,7 @@ import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useState } from "react/cjs/react.development";
 import { database } from "../constant/database";
+import { storage } from "../constant/storage";
 import AppTitles from "./AppTitles";
 
 const PlanosTreinoListStack = createStackNavigator();
@@ -196,8 +197,118 @@ export default function AppNavigations() {
   const [username, setUsername] = useState("");
   const [userId, setUserId] = useState("");
 
+  const [plano, setPlano] = useState("");
+  const [exercicio, setExercicio] = useState("");
+  const [aula, setAula] = useState("");
+
   const uri =
     "http://" + database.ip + ":" + database.port + "/php/getUsername.php";
+  const uriDeletePlano =
+    "http://" + database.ip + ":" + database.port + "/php/deletePlano.php";
+  const uriDeleteExercicio =
+    "http://" + database.ip + ":" + database.port + "/php/deleteExercicio.php";
+  const uriDeleteAula =
+    "http://" + database.ip + ":" + database.port + "/php/deleteAula.php";
+
+  async function getPlano() {
+    try {
+      let id = await AsyncStorage.getItem(storage.plano);
+      id = JSON.parse(id);
+
+      if (id != null) {
+        setPlano(id);
+      }
+    } catch (error) {
+      alert(error);
+    }
+  }
+  function deletePlano(navigation) {
+    getPlano();
+    fetch(uriDeletePlano, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: plano.id,
+      }),
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.message === "success") navigation.goBack();
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }
+
+  async function getExercicio() {
+    try {
+      let id = await AsyncStorage.getItem(storage.exercicio);
+      id = JSON.parse(id);
+
+      if (id != null) {
+        setExercicio(id);
+      }
+    } catch (error) {
+      alert(error);
+    }
+  }
+  function deleteExercicio(navigation) {
+    getExercicio();
+    alert(exercicio.id);
+    // fetch(uriDeleteExercicio, {
+    //   method: "POST",
+    //   headers: {
+    //     Accept: "application/json",
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     id: exercicio.id,
+    //   }),
+    // })
+    //   .then((response) => response.json())
+    //   .then((json) => {
+    //     if (json.message === "success") navigation.goBack();
+    //   })
+    //   .catch((error) => {
+    //     alert(error);
+    //   });
+  }
+
+  async function getAula() {
+    try {
+      let id = await AsyncStorage.getItem(storage.aula);
+      id = JSON.parse(id);
+
+      if (id != null) {
+        setAula(id);
+      }
+    } catch (error) {
+      alert(error);
+    }
+  }
+  function deleteAula(navigation) {
+    getAula();
+    fetch(uriDeleteAula, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: aula.id,
+      }),
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.message === "success") navigation.goBack();
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }
 
   async function getAsyncUser() {
     try {
@@ -307,10 +418,10 @@ export default function AppNavigations() {
       <RootStack.Screen
         name="PlanoTreinoDetails"
         component={PlanoTreinoDetails}
-        options={({ route }) => ({
+        options={({ route, navigation }) => ({
           headerTitle: () => getHeaderTitle(route),
           headerRight: () => (
-            <Button onPress={() => alert("Delete")}>
+            <Button onPress={() => deletePlano(navigation)}>
               <IconsFA name="trash" size={30} color="#fff" />
             </Button>
           ),
@@ -322,10 +433,10 @@ export default function AppNavigations() {
       <RootStack.Screen
         name="ExercicioDetails"
         component={ExercicioDetails}
-        options={({ route }) => ({
+        options={({ route, navigation }) => ({
           headerTitle: () => getHeaderTitle(route),
           headerRight: () => (
-            <Button onPress={() => alert("Delete")}>
+            <Button onPress={() => deleteExercicio(navigation)}>
               <IconsFA name="trash" size={30} color="#fff" />
             </Button>
           ),
@@ -337,10 +448,10 @@ export default function AppNavigations() {
       <RootStack.Screen
         name="AulaGrupoDetails"
         component={AulaGrupoDetails}
-        options={({ route }) => ({
+        options={({ route, navigation }) => ({
           headerTitle: () => getHeaderTitle(route),
           headerRight: () => (
-            <Button onPress={() => alert("Delete")}>
+            <Button onPress={() => deleteAula(navigation)}>
               <IconsFA name="trash" size={30} color="#fff" />
             </Button>
           ),

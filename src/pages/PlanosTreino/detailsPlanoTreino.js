@@ -18,7 +18,7 @@ import { Picker } from "@react-native-picker/picker";
 import { database } from "../../constant/database";
 import { ScrollView } from "react-native-gesture-handler";
 
-export default function DetailsPlanoTreino({ route }) {
+export default function DetailsPlanoTreino({ route, navigation }) {
   const uri2 =
     "http://" +
     database.ip +
@@ -32,7 +32,7 @@ export default function DetailsPlanoTreino({ route }) {
   const uriEdit =
     "http://" + database.ip + ":" + database.port + "/php/editPlano.php";
 
-  const { id } = route.params;
+  const { plano } = route.params;
   const [exercicios, setExercicios] = useState([]);
   const [userId, setUserId] = useState("");
   const [nome, setNome] = useState("");
@@ -78,43 +78,66 @@ export default function DetailsPlanoTreino({ route }) {
       });
   }
 
-  async function getAsyncUser() {
-    try {
-      let id = await AsyncStorage.getItem("user_id");
-      id = JSON.parse(id);
+  // async function getAsyncUser() {
+  //   try {
+  //     let id = await AsyncStorage.getItem("user_id");
+  //     id = JSON.parse(id);
 
-      if (id != null) {
-        setUserId(id);
-      }
-    } catch (error) {
-      alert(error);
-    }
+  //     if (id != null) {
+  //       setUserId(id);
+  //     }
+  //   } catch (error) {
+  //     alert(error);
+  //   }
+  // }
+
+  // function loadPlano() {
+  //   fetch(uri, {
+  //     method: "POST",
+  //     headers: {
+  //       Accept: "application/json",
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({
+  //       userId: userId,
+  //       planoId: id,
+  //     }),
+  //   })
+  //     .then((response) => response.json())
+  //     .then((json) => {
+  //       if (json.message == "success") {
+  //         setNome(json.plano[0].nome);
+  //         setDiaSemana(json.plano[0].diaSemana);
+  //         setExercicio1(json.exercicios[0].nome);
+  //         setExercicio2(json.exercicios[1].nome);
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       alert(error);
+  //     });
+  // }
+
+  function getNome() {
+    setNome(plano.nome);
   }
 
-  function loadPlano() {
-    fetch(uri, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: userId,
-        planoId: id,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.message == "success") {
-          setNome(json.plano[0].nome);
-          setDiaSemana(json.plano[0].diaSemana);
-          setExercicio1(json.exercicios[0].nome);
-          setExercicio2(json.exercicios[1].nome);
-        }
-      })
-      .catch((error) => {
-        alert(error);
-      });
+  function getDiaSemana() {
+    setDiaSemana(plano.diaSemana);
+  }
+
+  function getExercicio1() {
+    setExercicio1(plano.exercicio1);
+  }
+
+  function getExercicio2() {
+    setExercicio2(plano.exercicio2);
+  }
+
+  function getData() {
+    getNome();
+    getDiaSemana();
+    getExercicio1();
+    getExercicio2();
   }
 
   useEffect(() => {
@@ -124,16 +147,13 @@ export default function DetailsPlanoTreino({ route }) {
   }, []);
 
   useEffect(() => {
-    getAsyncUser();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", (e) => {
+      loadExercicios();
+      getData();
+    });
 
-  useEffect(() => {
-    loadPlano();
-  }, []);
-
-  useEffect(() => {
-    loadExercicios();
-  }, []);
+    return unsubscribe;
+  }, [navigation]);
 
   function edit() {
     fetch(uriEdit, {

@@ -16,7 +16,7 @@ import { FAB } from "react-native-paper";
 import DropDownPicker from "react-native-dropdown-picker";
 import { database } from "../../constant/database";
 
-export default function DetailsAulaGrupo({ route }) {
+export default function DetailsAulaGrupo({ route, navigation }) {
   const uri =
     "http://" + database.ip + ":" + database.port + "/php/getDetailsAula.php";
 
@@ -26,7 +26,7 @@ export default function DetailsAulaGrupo({ route }) {
   const uriDelete =
     "http://" + database.ip + ":" + database.port + "/php/deleteAula.php";
 
-  const { id } = route.params;
+  const { aula } = route.params;
 
   const [userId, setUserId] = useState("");
   const [nome, setNome] = useState("");
@@ -48,41 +48,54 @@ export default function DetailsAulaGrupo({ route }) {
     setButtonEdit(!buttonEdit);
   }
 
-  async function getAsyncUser() {
-    try {
-      let id = await AsyncStorage.getItem("user_id");
-      id = JSON.parse(id);
+  // async function getAsyncUser() {
+  //   try {
+  //     let id = await AsyncStorage.getItem("user_id");
+  //     id = JSON.parse(id);
 
-      if (id != null) {
-        setUserId(id);
-      }
-    } catch (error) {
-      alert(error);
-    }
+  //     if (id != null) {
+  //       setUserId(id);
+  //     }
+  //   } catch (error) {
+  //     alert(error);
+  //   }
+  // }
+
+  // function loadAula() {
+  //   fetch(uri, {
+  //     method: "POST",
+  //     headers: {
+  //       Accept: "application/json",
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({
+  //       userId: userId,
+  //       aulaId: id,
+  //     }),
+  //   })
+  //     .then((response) => response.json())
+  //     .then((json) => {
+  //       if (json.message == "success") {
+  //         setNome(json.aula[0].nome);
+  //         setDiaSemana(json.aula[0].diaSemana);
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       alert(error);
+  //     });
+  // }
+
+  function getNome() {
+    setNome(aula.nome);
   }
 
-  function loadAula() {
-    fetch(uri, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: userId,
-        aulaId: id,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.message == "success") {
-          setNome(json.aula[0].nome);
-          setDiaSemana(json.aula[0].diaSemana);
-        }
-      })
-      .catch((error) => {
-        alert(error);
-      });
+  function getDiaSemana() {
+    setDiaSemana(aula.diaSemana);
+  }
+
+  function getData() {
+    getNome();
+    getDiaSemana();
   }
 
   useEffect(() => {
@@ -92,62 +105,39 @@ export default function DetailsAulaGrupo({ route }) {
   }, []);
 
   useEffect(() => {
-    getAsyncUser();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", (e) => {
+      getData();
+    });
 
-  useEffect(() => {
-    loadAula();
-  }, []);
+    return unsubscribe;
+  }, [navigation]);
 
   function edit() {
-    fetch(uriEdit, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nome: nome,
-        diaSemana: diaSemana,
-        userId: JSON.stringify(userId),
-        aulaId: id,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.message == "success") {
-          alert("Aula atualizada com sucesso!");
-          desativarVisible();
-          loadAula();
-        }
-      })
-      .catch((error) => {
-        alert(error);
-      });
-  }
-
-  function deleteAula() {
-    fetch(uriDelete, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: JSON.stringify(userId),
-        aulaId: id,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.message == "success") {
-          alert("Aula eliminada com sucesso!");
-          loadAula();
-        }
-      })
-      .catch((error) => {
-        alert(error);
-      });
+    alert("oi");
+    // fetch(uriEdit, {
+    //   method: "POST",
+    //   headers: {
+    //     Accept: "application/json",
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     nome: nome,
+    //     diaSemana: diaSemana,
+    //     userId: JSON.stringify(userId),
+    //     aulaId: id,
+    //   }),
+    // })
+    //   .then((response) => response.json())
+    //   .then((json) => {
+    //     if (json.message == "success") {
+    //       alert("Aula atualizada com sucesso!");
+    //       desativarVisible();
+    //       loadAula();
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     alert(error);
+    //   });
   }
 
   return (

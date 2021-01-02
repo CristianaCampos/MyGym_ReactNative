@@ -6,6 +6,8 @@ import { Button, Card } from "react-native-paper";
 import { FAB } from "react-native-paper";
 import { database } from "../../constant/database";
 
+import ListPlano from "../../components/Lists/ListPlanos";
+
 export default function planoTreinoList({ navigation }) {
   const uri =
     "http://" + database.ip + ":" + database.port + "/php/getPlanos.php";
@@ -55,12 +57,13 @@ export default function planoTreinoList({ navigation }) {
   }, []);
 
   useEffect(() => {
-    getAsyncUser();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", (e) => {
+      getAsyncUser();
+      loadPlanos();
+    });
 
-  useEffect(() => {
-    loadPlanos();
-  }, []);
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
@@ -72,23 +75,13 @@ export default function planoTreinoList({ navigation }) {
           keyExtractor={({ id }, index) => id}
           extraData={loadPlanos()}
           renderItem={({ item }) => (
-            <Card
-              onPress={() =>
-                navigation.navigate("PlanoTreinoDetails", {
-                  id: item.id,
-                })
-              }
-              style={styles.rectangleView}
-            >
-              <View
-                style={{
-                  padding: 10,
-                }}
-              >
-                <Text style={styles.nomeText}>{item.nome}</Text>
-                <Text style={styles.diaSemanaText}>{item.diaSemana}</Text>
-              </View>
-            </Card>
+            <ListPlano
+              id={item.id}
+              nome={item.nome}
+              diaSemana={item.diaSemana}
+              plano={item}
+              navigation={navigation}
+            />
           )}
         />
         <FAB
@@ -118,25 +111,5 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_Bold",
     marginTop: "3%",
     textAlign: "center",
-  },
-  rectangleView: {
-    flexDirection: "column",
-    shadowColor: "#B72727",
-    shadowOpacity: 0.5,
-    backgroundColor: "#B72727",
-    borderWidth: 1,
-    marginTop: "5%",
-    borderColor: "#B72727",
-    borderRadius: 7,
-  },
-  nomeText: {
-    color: "white",
-    fontSize: 18,
-    fontFamily: "Poppins_Regular",
-  },
-  diaSemanaText: {
-    color: "rgba(255,255,255,0.8)",
-    fontSize: 15,
-    fontFamily: "Poppins_Regular",
   },
 });

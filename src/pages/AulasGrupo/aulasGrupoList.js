@@ -6,6 +6,8 @@ import { Button, Card } from "react-native-paper";
 import { FAB } from "react-native-paper";
 import { database } from "../../constant/database";
 
+import ListAulas from "../../components/Lists/ListAulas";
+
 export default function aulaGrupoList({ navigation }) {
   const uri =
     "http://" + database.ip + ":" + database.port + "/php/getAulas.php";
@@ -55,13 +57,14 @@ export default function aulaGrupoList({ navigation }) {
   }, []);
 
   useEffect(() => {
-    getAsyncUser();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", (e) => {
+      getAsyncUser();
+      loadAulas();
+    });
 
-  useEffect(() => {
-    loadAulas(); // e agora?
-  }, []);
-  //já não está a dar o erro. pelo menos na pag da lista dos planos. boooaa, acho que é isto mesmo
+    return unsubscribe;
+  }, [navigation]);
+
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
       <View style={styles.container}>
@@ -72,23 +75,13 @@ export default function aulaGrupoList({ navigation }) {
           extraData={loadAulas()}
           keyExtractor={({ id }, index) => id}
           renderItem={({ item }) => (
-            <Card
-              onPress={() =>
-                navigation.navigate("AulaGrupoDetails", {
-                  id: item.id,
-                })
-              }
-              style={styles.rectangleView}
-            >
-              <View
-                style={{
-                  padding: 10,
-                }}
-              >
-                <Text style={styles.nomeText}>{item.nome}</Text>
-                <Text style={styles.diaSemanaText}>{item.diaSemana}</Text>
-              </View>
-            </Card>
+            <ListAulas
+              id={item.id}
+              nome={item.nome}
+              diaSemana={item.diaSemana}
+              aula={item}
+              navigation={navigation}
+            />
           )}
         />
         <FAB
@@ -118,25 +111,5 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_Bold",
     marginTop: "3%",
     textAlign: "center",
-  },
-  rectangleView: {
-    flexDirection: "column",
-    shadowColor: "#B72727",
-    shadowOpacity: 0.5,
-    backgroundColor: "#B72727",
-    borderWidth: 2,
-    marginTop: "5%",
-    borderColor: "#B72727",
-    borderRadius: 7,
-  },
-  nomeText: {
-    color: "white",
-    fontSize: 18,
-    fontFamily: "Poppins_Regular",
-  },
-  diaSemanaText: {
-    color: "rgba(255,255,255,0.8)",
-    fontSize: 15,
-    fontFamily: "Poppins_Regular",
   },
 });
