@@ -17,7 +17,7 @@ export default function MainTabIcon({ focused, color, route }) {
       } else {
         return (
           <Image
-            source={require("../../../assets/menu/planostreino/iconPlanosTreino.png")}
+            source={require("../../../assets/menu/planostreino/iconPlanosTreinoNotSelected.png")}
             resizeMode="contain"
             style={{ height: 30 }}
           />
@@ -38,7 +38,7 @@ export default function MainTabIcon({ focused, color, route }) {
       } else {
         return (
           <Image
-            source={require("../../../assets/menu/exercicios/iconExercicios.png")}
+            source={require("../../../assets/menu/exercicios/iconExerciciosNotSelected.png")}
             resizeMode="contain"
             style={{ height: 30 }}
           />
@@ -59,9 +59,9 @@ export default function MainTabIcon({ focused, color, route }) {
       } else {
         return (
           <Image
-            source={require("../../../assets/menu/aulasgrupo/iconAulasGrupo.png")}
+            source={require("../../../assets/menu/aulasgrupo/iconAulasGrupoNotSelected.png")}
             resizeMode="contain"
-            style={{ height: 35 }}
+            style={{ height: 30 }}
           />
         );
       }
@@ -80,7 +80,7 @@ export default function MainTabIcon({ focused, color, route }) {
       } else {
         return (
           <Image
-            source={require("../../../assets/menu/definicoes/iconDefinicoes.png")}
+            source={require("../../../assets/menu/definicoes/iconDefinicoesNotSelected.png")}
             resizeMode="contain"
             style={{ height: 30 }}
           />

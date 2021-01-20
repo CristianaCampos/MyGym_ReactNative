@@ -3,87 +3,86 @@ import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import {
   TextInput,
-  StyleSheet,
+  Alert,
   View,
   Text,
   KeyboardAvoidingView,
   Image,
   BackHandler,
 } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { Button } from "react-native-paper";
 import { FAB } from "react-native-paper";
 
 import { database } from "../../constant/database";
+import { storage } from "../../constant/storage";
+import { styles } from "../../constant/styles";
 
 export default function DetailsExercicio({ route, navigation }) {
-  const uri =
-    "http://" +
-    database.ip +
-    ":" +
-    database.port +
-    "/php/getDetailsExercicio.php";
-
   const uriEdit =
     "http://" + database.ip + ":" + database.port + "/php/editExercicio.php";
 
   const { exercicio } = route.params;
 
-  const [userId, setUserId] = useState("");
+  const [user, setUser] = useState("");
   const [nome, setNome] = useState("");
   const [zonaMuscular, setZonaMuscular] = useState("");
 
-  const [visible, setVisible] = useState(false);
-  const [buttonEdit, setButtonEdit] = useState(false);
-  const [buttonFab, setButtonFab] = useState(true);
+  const [editable, setEditable] = useState(false);
+  const [inputStyle, setInputStyle] = useState(styles.inputGrey);
+
+  function seeButtonAtualizar() {
+    if (editable) {
+      return (
+        <Button mode="contained" style={styles.mainBtn} onPress={() => edit()}>
+          <Text style={styles.mainBtnText}>Atualizar Dados</Text>
+        </Button>
+      );
+    } else {
+      return null;
+    }
+  }
+
+  function seeButtonFab() {
+    if (!editable) {
+      return (
+        <FAB
+          style={styles.fab}
+          icon="square-edit-outline"
+          onPress={() => ativarVisible()}
+        />
+      );
+    } else {
+      return null;
+    }
+  }
 
   function ativarVisible() {
-    setVisible(!visible);
-    setButtonFab(!buttonFab);
-    setButtonEdit(!buttonEdit);
+    setEditable(true);
+    setInputStyle(styles.input);
   }
 
   function desativarVisible() {
-    setVisible(!visible);
-    setButtonFab(!buttonFab);
-    setButtonEdit(!buttonEdit);
+    setEditable(false);
+    setInputStyle(styles.inputGrey);
   }
 
-  // async function getAsyncUser() {
-  //   try {
-  //     let id = await AsyncStorage.getItem("user_id");
-  //     id = JSON.parse(id);
+  useEffect(() => {
+    desativarVisible();
+  }, []);
 
-  //     if (id != null) {
-  //       setUserId(id);
-  //     }
-  //   } catch (error) {
-  //     alert(error);
-  //   }
-  // }
+  async function getUser() {
+    try {
+      let value = await AsyncStorage.getItem(storage.user);
+      value = JSON.parse(value);
 
-  // function loadExercise() {
-  //   fetch(uri, {
-  //     method: "POST",
-  //     headers: {
-  //       Accept: "application/json",
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({
-  //       userId: userId,
-  //       exerciseId: id,
-  //     }),
-  //   })
-  //     .then((response) => response.json())
-  //     .then((json) => {
-  //       if (json.message == "success") {
-  //         setNome(json.exercise[0].nome);
-  //         setZonaMuscular(json.exercise[0].zonaMuscular);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       alert(error);
-  //     });
-  // }
+      if (value != null) {
+        setUser(value);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   function getNome() {
     setNome(exercicio.nome);
@@ -96,6 +95,7 @@ export default function DetailsExercicio({ route, navigation }) {
   function getData() {
     getNome();
     getZonaMuscular();
+    getUser();
   }
 
   useEffect(() => {
@@ -113,160 +113,97 @@ export default function DetailsExercicio({ route, navigation }) {
   }, [navigation]);
 
   function edit() {
-    alert("oi");
-    // fetch(uriEdit, {
-    //   method: "POST",
-    //   headers: {
-    //     Accept: "application/json",
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     nome: nome,
-    //     zonaMuscular: zonaMuscular,
-    //     userId: JSON.stringify(),
-    //     exerciseId: id,
-    //   }),
-    // })
-    //   .then((response) => response.json())
-    //   .then((json) => {
-    //     if (json.message == "success") {
-    //       alert("Exercício atualizado com sucesso!");
-    //       desativarVisible();
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     alert(error);
-    //   });
+    if (nome != "" && zonaMuscular != "") {
+      fetch(uriEdit, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: exercicio.id,
+          nome: nome,
+          zonaMuscular: zonaMuscular,
+          idUtilizador: user.id,
+        }),
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          if (json.message === "success") {
+            desativarVisible();
+            updateStorage();
+            Alert.alert(
+              "Sucesso",
+              "Exercício atualizado com sucesso!",
+              [{ text: "OK", style: "default" }],
+              { cancelable: true }
+            );
+            navigation.goBack();
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      Alert.alert(
+        "Erro",
+        "Preencha todos os campos!",
+        [{ text: "OK", style: "destructive" }],
+        { cancelable: true }
+      );
+    }
+  }
+
+  async function updateStorage() {
+    try {
+      exercicio.nome = nome;
+      exercicio.zonaMuscular = zonaMuscular;
+
+      let newExercicio = exercicio;
+
+      newExercicio = JSON.stringify(newExercicio);
+
+      await AsyncStorage.setItem(storage.exercicio, newExercicio);
+      let value = await AsyncStorage.getItem(storage.exercicio);
+      value = JSON.parse(value);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS == "ios" ? "padding" : "height"}
-        style={styles.container}
-      >
+      <KeyboardAvoidingView>
         <StatusBar style="auto" />
-        <Text style={styles.pageTitle}>Detalhes Exercício</Text>
-        <Image
-          style={styles.img}
-          source={require("../../../assets/exercicio.jpg")}
-        ></Image>
-        {visible ? (
-          <View>
+        <ScrollView>
+          <View style={styles.container}>
+            <Text style={styles.pageTitle}>Detalhes Exercício</Text>
+            <Image
+              style={{ width: "100%", height: 200 }}
+              source={require("../../../assets/exercicio.jpg")}
+            ></Image>
+
+            <Text style={styles.textInput}>Nome Exercício</Text>
             <TextInput
               placeholder="Nome Exercício"
-              editable={visible}
-              style={styles.input}
-              defaultValue={nome}
+              editable={editable}
+              style={inputStyle}
+              value={nome}
               onChangeText={(txt) => setNome(txt)}
             ></TextInput>
+            <Text style={styles.textInput}>Zona Muscular</Text>
             <TextInput
               placeholder="Zona Muscular"
-              editable={visible}
-              style={styles.input}
-              defaultValue={zonaMuscular}
+              editable={editable}
+              style={inputStyle}
+              value={zonaMuscular}
               onChangeText={(txt) => setZonaMuscular(txt)}
             ></TextInput>
+            {seeButtonAtualizar()}
           </View>
-        ) : (
-          <View>
-            <TextInput
-              placeholder="Nome Exercício"
-              editable={visible}
-              style={styles.inputGrey}
-              defaultValue={nome}
-              onChangeText={(txt) => setNome(txt)}
-            ></TextInput>
-            <TextInput
-              placeholder="Zona Muscular"
-              editable={visible}
-              style={styles.inputGrey}
-              defaultValue={zonaMuscular}
-              onChangeText={(txt) => setZonaMuscular(txt)}
-            ></TextInput>
-          </View>
-        )}
-        {buttonEdit ? (
-          <Button
-            mode="contained"
-            style={styles.btnLogin}
-            onPress={() => edit()}
-          >
-            <Text style={styles.btnTextLogin}>Atualizar Dados</Text>
-          </Button>
-        ) : null}
-        {buttonFab ? (
-          <FAB
-            style={styles.fab}
-            icon="square-edit-outline"
-            onPress={() => ativarVisible()}
-          />
-        ) : null}
+        </ScrollView>
       </KeyboardAvoidingView>
+      {seeButtonFab()}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  img: {
-    height: "40%",
-    alignSelf: "center",
-    marginTop: "5%",
-    resizeMode: "contain",
-  },
-  fab: {
-    backgroundColor: "#B72727",
-    position: "absolute",
-    margin: 16,
-    right: 0,
-    bottom: 20,
-  },
-  container: {
-    height: "100%",
-    marginHorizontal: "5%",
-  },
-  pageTitle: {
-    fontSize: 25,
-    fontFamily: "Poppins_Bold",
-    marginTop: "3%",
-    marginLeft: "5%",
-    textAlign: "center",
-  },
-  input: {
-    height: 50,
-    marginTop: "5%",
-    flexDirection: "row",
-    alignSelf: "center",
-    width: "100%",
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    borderColor: "#B72727",
-    borderRadius: 7,
-    fontSize: 15,
-    fontFamily: "Poppins_Regular",
-  },
-  inputGrey: {
-    height: 50,
-    marginTop: "5%",
-    flexDirection: "row",
-    alignSelf: "center",
-    width: "100%",
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    borderColor: "#B72727",
-    borderRadius: 7,
-    fontSize: 15,
-    fontFamily: "Poppins_Regular",
-    color: "grey",
-  },
-  btnLogin: {
-    backgroundColor: "#B72727",
-    marginTop: "8%",
-    height: 50,
-    justifyContent: "center",
-  },
-  btnTextLogin: {
-    fontSize: 20,
-    fontFamily: "Poppins_Regular",
-  },
-});

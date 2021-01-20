@@ -4,4 +4,6 @@ export const storage = {
   plano: "plano",
   exercicio: "exercicio",
   aula: "aula",
+  dadosCorporais: "dadosCorporais",
+  exercicios: "exercicios",
 };

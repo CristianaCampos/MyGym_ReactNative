@@ -4,10 +4,12 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, FlatList, BackHandler } from "react-native";
 import { Button, Card } from "react-native-paper";
 import { FAB } from "react-native-paper";
+import * as Animatable from "react-native-animatable";
 
 import ListExercicios from "../../components/Lists/ListExercicios";
 
 import { database } from "../../constant/database";
+import { styles } from "../../constant/styles";
 
 export default function exercicioList({ navigation }) {
   const uri =
@@ -25,7 +27,7 @@ export default function exercicioList({ navigation }) {
         setUserId(id);
       }
     } catch (error) {
-      alert(error);
+      console.log(error);
     }
   }
 
@@ -47,7 +49,7 @@ export default function exercicioList({ navigation }) {
         }
       })
       .catch((error) => {
-        alert(error);
+        console.log(error);
       });
   }
 
@@ -71,20 +73,22 @@ export default function exercicioList({ navigation }) {
       <View style={styles.container}>
         <Text style={styles.pageTitle}>Exercícios</Text>
         <StatusBar style="auto" />
-        <FlatList
-          data={exercises}
-          extraData={loadExercises()}
-          keyExtractor={({ id }, index) => id}
-          renderItem={({ item }) => (
-            <ListExercicios
-              id={item.id}
-              nome={item.nome}
-              zonaMuscular={item.zonaMuscular}
-              exercicio={item}
-              navigation={navigation}
-            />
-          )}
-        />
+        <Animatable.View animation="fadeInUp">
+          <FlatList
+            data={exercises}
+            extraData={loadExercises()}
+            keyExtractor={({ id }, index) => id}
+            renderItem={({ item }) => (
+              <ListExercicios
+                id={item.id}
+                nome={item.nome}
+                zonaMuscular={item.zonaMuscular}
+                exercicio={item}
+                navigation={navigation}
+              />
+            )}
+          />
+        </Animatable.View>
         <FAB
           style={styles.fab}
           icon="plus"
@@ -94,23 +98,3 @@ export default function exercicioList({ navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  fab: {
-    backgroundColor: "#B72727",
-    position: "absolute",
-    margin: 16,
-    right: 0,
-    bottom: 0,
-  },
-  container: {
-    flex: 1,
-    marginHorizontal: "5%",
-  },
-  pageTitle: {
-    fontSize: 25,
-    fontFamily: "Poppins_Bold",
-    marginTop: "3%",
-    textAlign: "center",
-  },
-});

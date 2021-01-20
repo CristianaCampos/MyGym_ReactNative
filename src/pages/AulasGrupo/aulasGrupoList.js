@@ -1,12 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, FlatList, BackHandler } from "react-native";
-import { Button, Card } from "react-native-paper";
+import { View, Text, FlatList, BackHandler } from "react-native";
 import { FAB } from "react-native-paper";
 import { database } from "../../constant/database";
+import * as Animatable from "react-native-animatable";
 
 import ListAulas from "../../components/Lists/ListAulas";
+import { styles } from "../../constant/styles";
 
 export default function aulaGrupoList({ navigation }) {
   const uri =
@@ -24,7 +25,7 @@ export default function aulaGrupoList({ navigation }) {
         setUserId(id);
       }
     } catch (error) {
-      alert(error);
+      console.log(error);
     }
   }
 
@@ -46,7 +47,7 @@ export default function aulaGrupoList({ navigation }) {
         }
       })
       .catch((error) => {
-        alert(error);
+        console.log(error);
       });
   }
 
@@ -70,20 +71,22 @@ export default function aulaGrupoList({ navigation }) {
       <View style={styles.container}>
         <Text style={styles.pageTitle}>Aulas Grupo</Text>
         <StatusBar style="auto" />
-        <FlatList
-          data={aulas}
-          extraData={loadAulas()}
-          keyExtractor={({ id }, index) => id}
-          renderItem={({ item }) => (
-            <ListAulas
-              id={item.id}
-              nome={item.nome}
-              diaSemana={item.diaSemana}
-              aula={item}
-              navigation={navigation}
-            />
-          )}
-        />
+        <Animatable.View animation="fadeInUp">
+          <FlatList
+            data={aulas}
+            extraData={loadAulas()}
+            keyExtractor={({ id }, index) => id}
+            renderItem={({ item }) => (
+              <ListAulas
+                id={item.id}
+                nome={item.nome}
+                diaSemana={item.diaSemana}
+                aula={item}
+                navigation={navigation}
+              />
+            )}
+          />
+        </Animatable.View>
         <FAB
           style={styles.fab}
           icon="plus"
@@ -93,23 +96,3 @@ export default function aulaGrupoList({ navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  fab: {
-    backgroundColor: "#B72727",
-    position: "absolute",
-    margin: 16,
-    right: 0,
-    bottom: 0,
-  },
-  container: {
-    flex: 1,
-    marginHorizontal: "5%",
-  },
-  pageTitle: {
-    fontSize: 25,
-    fontFamily: "Poppins_Bold",
-    marginTop: "3%",
-    textAlign: "center",
-  },
-});

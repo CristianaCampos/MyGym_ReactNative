@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import {
   TextInput,
-  StyleSheet,
+  Alert,
   View,
   Text,
   KeyboardAvoidingView,
@@ -13,8 +13,9 @@ import {
 import { Button } from "react-native-paper";
 
 import { database } from "../../constant/database";
+import { styles } from "../../constant/styles";
 
-function AddExercicio({ navigation }) {
+export default function AddExercicio({ navigation }) {
   const uri =
     "http://" + database.ip + ":" + database.port + "/php/insertExercicio.php";
 
@@ -31,7 +32,7 @@ function AddExercicio({ navigation }) {
         setUserId(id);
       }
     } catch (error) {
-      alert(error);
+      console.log(error);
     }
   }
 
@@ -52,15 +53,25 @@ function AddExercicio({ navigation }) {
         .then((response) => response.json())
         .then((json) => {
           if (json.message == "success") {
-            alert("Exercício registado com sucesso!");
+            Alert.alert(
+              "Sucesso",
+              "Exercício registado com sucesso!",
+              [{ text: "OK", style: "default" }],
+              { cancelable: true }
+            );
             navigation.navigate("ExerciciosList");
           }
         })
         .catch((error) => {
-          alert(error);
+          console.log(error);
         });
     } else {
-      alert("Preencha todos os campos!");
+      Alert.alert(
+        "Erro",
+        "Preencha todos os campos!",
+        [{ text: "OK", style: "destructive" }],
+        { cancelable: true }
+      );
     }
   }
 
@@ -83,63 +94,23 @@ function AddExercicio({ navigation }) {
         <ScrollView>
           <StatusBar style="auto" />
           <Text style={styles.pageTitle}>Criar Exercício</Text>
+          <Text style={styles.textInput}>Nome Exercício</Text>
           <TextInput
             placeholder="Nome Exercício"
             style={styles.input}
             onChangeText={(text) => setNome(text)}
           ></TextInput>
+          <Text style={styles.textInput}>Zona Muscular</Text>
           <TextInput
             placeholder="Zona Muscular"
             style={styles.input}
             onChangeText={(txt) => setZonaMuscular(txt)}
           ></TextInput>
-          <Button
-            mode="contained"
-            onPress={() => add()}
-            style={styles.btnLogin}
-          >
-            <Text style={styles.btnTextLogin}>Criar Exercício</Text>
+          <Button mode="contained" onPress={() => add()} style={styles.mainBtn}>
+            <Text style={styles.mainBtnText}>Criar Exercício</Text>
           </Button>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    height: "100%",
-    marginHorizontal: "5%",
-  },
-  pageTitle: {
-    fontSize: 25,
-    fontFamily: "Poppins_Bold",
-    marginTop: "3%",
-    marginLeft: "5%",
-    textAlign: "center",
-  },
-  input: {
-    height: 50,
-    marginTop: "5%",
-    flexDirection: "row",
-    alignSelf: "center",
-    width: "100%",
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    borderColor: "#B72727",
-    borderRadius: 7,
-    fontSize: 15,
-    fontFamily: "Poppins_Regular",
-  },
-  btnLogin: {
-    backgroundColor: "#B72727",
-    marginTop: "8%",
-    height: 50,
-    justifyContent: "center",
-  },
-  btnTextLogin: {
-    fontSize: 20,
-    fontFamily: "Poppins_Regular",
-  },
-});
-export default AddExercicio;

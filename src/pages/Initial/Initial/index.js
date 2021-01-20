@@ -1,7 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { Image, StyleSheet, View, Text } from "react-native";
+import { Image, View, Text } from "react-native";
 import { Button } from "react-native-paper";
+import { styles } from "../../../constant/styles";
 
 export default function Initial({ navigation }) {
   return (
@@ -9,47 +10,24 @@ export default function Initial({ navigation }) {
       <View style={styles.container}>
         <StatusBar style="auto" />
         <Image
-          style={styles.img}
+          style={styles.imgInitial}
           source={require("../../../../assets/logo.png")}
         ></Image>
         <Button
           mode="contained"
           onPress={() => navigation.navigate("Login")}
-          style={styles.btn}
+          style={styles.btnInitial}
         >
-          <Text style={styles.btnText}>Iniciar Sessão</Text>
+          <Text style={styles.mainBtnText}>Iniciar Sessão</Text>
         </Button>
         <Button
           mode="contained"
           onPress={() => navigation.navigate("Register")}
-          style={styles.btn}
+          style={styles.btnInitial}
         >
-          <Text style={styles.btnText}>Criar Conta</Text>
+          <Text style={styles.mainBtnText}>Criar Conta</Text>
         </Button>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    height: "100%",
-    marginHorizontal: "5%",
-  },
-  img: {
-    height: "40%",
-    alignSelf: "center",
-    marginTop: "20%",
-    resizeMode: "contain",
-  },
-  btn: {
-    backgroundColor: "#B72727",
-    marginTop: "5%",
-    height: 50,
-    justifyContent: "center",
-  },
-  btnText: {
-    fontSize: 20,
-    fontFamily: "Poppins_Regular",
-  },
-});

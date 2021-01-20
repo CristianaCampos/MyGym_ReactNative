@@ -3,21 +3,21 @@ import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
-  StyleSheet,
   Text,
   TextInput,
   View,
   BackHandler,
-  FlatList,
+  ScrollView,
+  Alert,
 } from "react-native";
 import { Button } from "react-native-paper";
 import DropDownPicker from "react-native-dropdown-picker";
 import { Picker } from "@react-native-picker/picker";
 
 import { database } from "../../constant/database";
-import { ScrollView } from "react-native-gesture-handler";
+import { styles } from "../../constant/styles";
 
-export default function AddPlanoTreino({ navigation }) {
+export default function AddPlanoTreino({ route, navigation }) {
   const uri =
     "http://" +
     database.ip +
@@ -32,26 +32,14 @@ export default function AddPlanoTreino({ navigation }) {
     database.port +
     "/php/insertPlanoTreino.php";
 
-  const [userId, setUserId] = useState("");
   const [exercicios, setExercicios] = useState([]);
+
+  const { id } = route.params;
 
   const [nome, setNome] = useState("");
   const [diaSemana, setDiaSemana] = useState("---");
-  const [exercicio1, setExercicio1] = useState("");
-  const [exercicio2, setExercicio2] = useState("");
-
-  async function getAsyncUser() {
-    try {
-      let id = await AsyncStorage.getItem("user_id");
-      id = JSON.parse(id);
-
-      if (id != null) {
-        setUserId(id);
-      }
-    } catch (error) {
-      alert(error);
-    }
-  }
+  const [exercicio1, setExercicio1] = useState("---");
+  const [exercicio2, setExercicio2] = useState("---");
 
   function loadExercicios() {
     fetch(uri, {
@@ -61,7 +49,7 @@ export default function AddPlanoTreino({ navigation }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId: JSON.stringify(userId),
+        userId: id,
       }),
     })
       .then((response) => response.json())
@@ -71,7 +59,7 @@ export default function AddPlanoTreino({ navigation }) {
         }
       })
       .catch((error) => {
-        alert(error);
+        console.log(error);
       });
   }
 
@@ -81,12 +69,16 @@ export default function AddPlanoTreino({ navigation }) {
       BackHandler.removeEventListener("hardwareBackPress", () => true);
   }, []);
 
-  useEffect(() => {
-    getAsyncUser();
-  }, []);
+  function getData() {
+    loadExercicios();
+  }
 
   useEffect(() => {
-    loadExercicios();
+    const unsubscribe = navigation.addListener("focus", (e) => {
+      getData();
+    });
+
+    return unsubscribe;
   }, []);
 
   function add() {
@@ -98,7 +90,7 @@ export default function AddPlanoTreino({ navigation }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: userId,
+          userId: id,
           nome: nome,
           diaSemana: diaSemana,
           exercicio1: exercicio1,
@@ -108,17 +100,27 @@ export default function AddPlanoTreino({ navigation }) {
         .then((response) => response.json())
         .then((json) => {
           if (json.message == "success") {
-            alert("Plano registado com sucesso!");
+            Alert.alert(
+              "Sucesso",
+              "Plano registado com sucesso!",
+              [{ text: "OK", style: "default" }],
+              { cancelable: true }
+            );
             navigation.navigate("PlanosTreinoList");
           } else {
-            alert("Erro");
+            console.log("Erro");
           }
         })
         .catch((error) => {
-          alert(error);
+          console.log(error);
         });
     } else {
-      alert("Preencha todos os campos!");
+      Alert.alert(
+        "Erro",
+        "Preencha todos os campos!",
+        [{ text: "OK", style: "destructive" }],
+        { cancelable: true }
+      );
     }
   }
 
@@ -137,16 +139,19 @@ export default function AddPlanoTreino({ navigation }) {
         <ScrollView>
           <StatusBar style="auto" />
           <Text style={styles.pageTitle}>Criar Plano Treino</Text>
+          <Text style={styles.textInput}>Nome Plano Treino</Text>
           <TextInput
             placeholder="Nome Plano"
             style={styles.input}
             onChangeText={(text) => setNome(text)}
           ></TextInput>
+          <Text style={styles.textInput}>Dia da Semana</Text>
           <DropDownPicker
             items={[
               {
                 label: "---",
                 value: "---",
+                disabled: true,
               },
               {
                 label: "Segunda-Feira",
@@ -178,23 +183,34 @@ export default function AddPlanoTreino({ navigation }) {
               },
             ]}
             defaultValue={diaSemana}
-            containerStyle={{ height: 50, marginTop: "5%" }}
-            style={{
-              backgroundColor: "#fff",
-              borderColor: "#B72727",
-              fontFamily: "Poppins_Regular",
+            containerStyle={{
+              height: 50,
+              marginTop: "2%",
             }}
-            itemStyle={{
-              justifyContent: "flex-start",
+            style={{
+              borderColor: "#B72727",
+            }}
+            labelStyle={{
+              fontSize: 15,
               fontFamily: "Poppins_Regular",
             }}
             dropDownStyle={{
+              justifyContent: "flex-start",
               backgroundColor: "#fff",
+              fontFamily: "Poppins_Regular",
             }}
             onChangeItem={(item) => setDiaSemana(item.value)}
           />
           <Text style={styles.textExercicios}>Exercícios</Text>
           <Picker
+            itemStyle={{
+              color: "black",
+              fontFamily: "Poppins_Regular",
+              fontSize: 15,
+              height: 100,
+              borderRadius: 7,
+              marginTop: 0,
+            }}
             mode="dropdown"
             selectedValue={exercicio1}
             onValueChange={(value, index) => setExercicio1(value)}
@@ -202,63 +218,25 @@ export default function AddPlanoTreino({ navigation }) {
             {myExercicios}
           </Picker>
           <Picker
+            itemStyle={{
+              color: "black",
+              fontFamily: "Poppins_Regular",
+              fontSize: 15,
+              height: 100,
+              borderRadius: 7,
+              marginTop: 0,
+            }}
             mode="dropdown"
             selectedValue={exercicio2}
             onValueChange={(value, index) => setExercicio2(value)}
           >
             {myExercicios}
           </Picker>
-          <Button
-            mode="contained"
-            style={styles.btnLogin}
-            onPress={() => add()}
-          >
-            <Text style={styles.btnTextLogin}>Criar Plano Treino</Text>
+          <Button mode="contained" style={styles.mainBtn} onPress={() => add()}>
+            <Text style={styles.mainBtnText}>Criar Plano Treino</Text>
           </Button>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    height: "100%",
-    marginHorizontal: "5%",
-  },
-  textExercicios: {
-    fontSize: 20,
-    fontFamily: "Poppins_Bold",
-    marginTop: "5%",
-  },
-  pageTitle: {
-    fontSize: 25,
-    fontFamily: "Poppins_Bold",
-    marginTop: "3%",
-    marginLeft: "5%",
-    textAlign: "center",
-  },
-  input: {
-    height: 50,
-    marginTop: "5%",
-    flexDirection: "row",
-    alignSelf: "center",
-    width: "100%",
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    borderColor: "#B72727",
-    borderRadius: 7,
-    fontSize: 15,
-    fontFamily: "Poppins_Regular",
-  },
-  btnLogin: {
-    backgroundColor: "#B72727",
-    marginTop: "8%",
-    height: 50,
-    justifyContent: "center",
-  },
-  btnTextLogin: {
-    fontSize: 20,
-    fontFamily: "Poppins_Regular",
-  },
-});

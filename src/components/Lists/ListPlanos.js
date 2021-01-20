@@ -19,6 +19,7 @@ export default (props) => {
     saveExercise();
     props.navigation.navigate("PlanoTreinoDetails", {
       plano: props.plano,
+      exercicios: props.exercicios,
     });
   }
   return (
