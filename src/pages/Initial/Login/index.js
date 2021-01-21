@@ -119,54 +119,56 @@ export default function Login({ navigation }) {
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView>
-        {/* <ScrollView> */}
-        <StatusBar style="auto" />
-        <Animatable.View animation="fadeInDown">
-          <Animated.Image
-            style={{
-              width: logo.x,
-              height: logo.y,
-              marginTop: "20%",
-              alignSelf: "center",
-            }}
-            // style={{
-            //   marginTop: "20%",
-            //   width: "100%",
-            //   height: 250,
-            //   resizeMode: "contain",
-            // }}
-            source={require("../../../../assets/logo.png")}
-          ></Animated.Image>
-        </Animatable.View>
-        <Animatable.View animation="fadeInUp">
-          <TextInput
-            placeholder="Nome Utilizador"
-            style={styles.input}
-            onChangeText={(nomeUtilizador) => setNomeUtilizador(nomeUtilizador)}
-          ></TextInput>
-          <TextInput
-            placeholder="Password"
-            style={styles.input}
-            secureTextEntry={true}
-            onChangeText={(pass) => setPass(pass)}
-          ></TextInput>
-        </Animatable.View>
-        <Animatable.View animation="fadeInUp">
-          <Button
-            mode="contained"
-            onPress={() => login()}
-            style={styles.btnLoginRegister}
-          >
-            <Text style={styles.mainBtnText}>Iniciar Sessão</Text>
-          </Button>
-          <Text
-            style={styles.btnTextRegisterLogin}
-            onPress={() => navigation.navigate("Register")}
-          >
-            Criar Conta
-          </Text>
-        </Animatable.View>
-        {/* </ScrollView> */}
+        <ScrollView>
+          <StatusBar style="auto" />
+          <Animatable.View animation="fadeInDown" useNativeDriver>
+            <Animated.Image
+              style={{
+                width: logo.x,
+                height: logo.y,
+                marginTop: "20%",
+                alignSelf: "center",
+              }}
+              // style={{
+              //   marginTop: "20%",
+              //   width: "100%",
+              //   height: 250,
+              //   resizeMode: "contain",
+              // }}
+              source={require("../../../../assets/logo.png")}
+            ></Animated.Image>
+          </Animatable.View>
+          <Animatable.View animation="fadeInUp" useNativeDriver>
+            <TextInput
+              placeholder="Nome Utilizador"
+              style={styles.input}
+              onChangeText={(nomeUtilizador) =>
+                setNomeUtilizador(nomeUtilizador)
+              }
+            ></TextInput>
+            <TextInput
+              placeholder="Password"
+              style={styles.input}
+              secureTextEntry={true}
+              onChangeText={(pass) => setPass(pass)}
+            ></TextInput>
+          </Animatable.View>
+          <Animatable.View animation="fadeInUp" useNativeDriver>
+            <Button
+              mode="contained"
+              onPress={() => login()}
+              style={styles.btnLoginRegister}
+            >
+              <Text style={styles.mainBtnText}>Iniciar Sessão</Text>
+            </Button>
+            <Text
+              style={styles.btnTextRegisterLogin}
+              onPress={() => navigation.navigate("Register")}
+            >
+              Criar Conta
+            </Text>
+          </Animatable.View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </View>
   );

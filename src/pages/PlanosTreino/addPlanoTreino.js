@@ -146,61 +146,28 @@ export default function AddPlanoTreino({ route, navigation }) {
             onChangeText={(text) => setNome(text)}
           ></TextInput>
           <Text style={styles.textInput}>Dia da Semana</Text>
-          <DropDownPicker
-            items={[
-              {
-                label: "---",
-                value: "---",
-                disabled: true,
-              },
-              {
-                label: "Segunda-Feira",
-                value: "Segunda-Feira",
-              },
-              {
-                label: "Terça-Feira",
-                value: "Terça-Feira",
-              },
-              {
-                label: "Quarta-Feira",
-                value: "Quarta-Feira",
-              },
-              {
-                label: "Quinta-Feira",
-                value: "Quinta-Feira",
-              },
-              {
-                label: "Sexta-Feira",
-                value: "Sexta-Feira",
-              },
-              {
-                label: "Sábado",
-                value: "Sábado",
-              },
-              {
-                label: "Domingo",
-                value: "Domingo",
-              },
-            ]}
-            defaultValue={diaSemana}
-            containerStyle={{
-              height: 50,
-              marginTop: "2%",
-            }}
-            style={{
-              borderColor: "#B72727",
-            }}
-            labelStyle={{
+          <Picker
+            itemStyle={{
+              color: "black",
+              fontFamily: "Poppins_Regular",
               fontSize: 15,
-              fontFamily: "Poppins_Regular",
+              height: 100,
+              borderRadius: 7,
+              marginTop: 0,
             }}
-            dropDownStyle={{
-              justifyContent: "flex-start",
-              backgroundColor: "#fff",
-              fontFamily: "Poppins_Regular",
-            }}
-            onChangeItem={(item) => setDiaSemana(item.value)}
-          />
+            mode="dropdown"
+            selectedValue={diaSemana}
+            onValueChange={(value, index) => setDiaSemana(value)}
+          >
+            <Picker.Item label="---" value="---" />
+            <Picker.Item label="Segunda-Feira" value="Segunda-Feira" />
+            <Picker.Item label="Terça-Feira" value="Terça-Feira" />
+            <Picker.Item label="Quarta-Feira" value="Quarta-Feira" />
+            <Picker.Item label="Quinta-Feira" value="Quinta-Feira" />
+            <Picker.Item label="Sexta-Feira" value="Sexta-Feira" />
+            <Picker.Item label="Sábado" value="Sábado" />
+            <Picker.Item label="Domingo" value="Domingo" />
+          </Picker>
           <Text style={styles.textExercicios}>Exercícios</Text>
           <Picker
             itemStyle={{

@@ -42,7 +42,13 @@ export default function AccountConfig({ navigation }) {
         </Button>
       );
     } else {
-      return null;
+      return (
+        <View
+          style={{
+            marginBottom: 125,
+          }}
+        ></View>
+      );
     }
   }
 
@@ -69,10 +75,6 @@ export default function AccountConfig({ navigation }) {
     setEditable(false);
     setInputStyle(styles.inputGrey);
   }
-
-  useEffect(() => {
-    desativarVisible();
-  }, []);
 
   async function getUser() {
     try {
@@ -169,6 +171,7 @@ export default function AccountConfig({ navigation }) {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", (e) => {
+      desativarVisible();
       getData();
     });
 
@@ -238,50 +241,48 @@ export default function AccountConfig({ navigation }) {
 
   return (
     <View style={{ backgroundColor: "white", flexGrow: 1 }}>
-      <KeyboardAvoidingView>
+      <KeyboardAvoidingView style={styles.container}>
         <ScrollView>
-          <View style={styles.container}>
-            <StatusBar style="auto" />
-            <Text style={styles.pageTitle}>Definições da Conta</Text>
-            <Image
-              source={require("../../../assets/iconPerfil.png")}
-              style={styles.imgPerfil}
-            />
-            <Text style={styles.meunome}>{nome}</Text>
-            <Text style={styles.meunome}>@{nomeUtilizador}</Text>
-            <Animatable.View animation="fadeInUp">
-              <Text style={styles.textInput}>Nome</Text>
-              <TextInput
-                value={nome}
-                editable={editable}
-                style={inputStyle}
-                onChangeText={(txt) => setNome(txt)}
-              ></TextInput>
-              <Text style={styles.textInput}>Email</Text>
-              <TextInput
-                value={email}
-                editable={editable}
-                style={inputStyle}
-                onChangeText={(txt) => setEmail(txt)}
-              ></TextInput>
-              <Text style={styles.textInput}>Contacto</Text>
-              <TextInput
-                value={contacto}
-                editable={editable}
-                style={inputStyle}
-                onChangeText={(txt) => setContacto(txt)}
-              ></TextInput>
-              <Text style={styles.textInput}>Password</Text>
-              <TextInput
-                value={pass}
-                secureTextEntry={true}
-                editable={editable}
-                style={inputStyle}
-                onChangeText={(txt) => setPass(txt)}
-              ></TextInput>
-            </Animatable.View>
-            {seeButtonAtualizar()}
-          </View>
+          <StatusBar style="auto" />
+          <Text style={styles.pageTitle}>Definições da Conta</Text>
+          <Image
+            source={require("../../../assets/iconPerfil.png")}
+            style={styles.imgPerfil}
+          />
+          <Text style={styles.meunome}>{nome}</Text>
+          <Text style={styles.meunome}>@{nomeUtilizador}</Text>
+          <Animatable.View animation="fadeInUp" useNativeDriver>
+            <Text style={styles.textInput}>Nome</Text>
+            <TextInput
+              value={nome}
+              editable={editable}
+              style={inputStyle}
+              onChangeText={(txt) => setNome(txt)}
+            ></TextInput>
+            <Text style={styles.textInput}>Email</Text>
+            <TextInput
+              value={email}
+              editable={editable}
+              style={inputStyle}
+              onChangeText={(txt) => setEmail(txt)}
+            ></TextInput>
+            <Text style={styles.textInput}>Contacto</Text>
+            <TextInput
+              value={contacto}
+              editable={editable}
+              style={inputStyle}
+              onChangeText={(txt) => setContacto(txt)}
+            ></TextInput>
+            <Text style={styles.textInput}>Password</Text>
+            <TextInput
+              value={pass}
+              secureTextEntry={true}
+              editable={editable}
+              style={inputStyle}
+              onChangeText={(txt) => setPass(txt)}
+            ></TextInput>
+          </Animatable.View>
+          {seeButtonAtualizar()}
         </ScrollView>
       </KeyboardAvoidingView>
       {seeButtonFab()}

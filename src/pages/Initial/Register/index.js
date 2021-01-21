@@ -113,7 +113,7 @@ export default function Register({ navigation }) {
       <KeyboardAvoidingView>
         <ScrollView>
           <StatusBar style="auto" />
-          <Animatable.View animation="fadeInDown">
+          <Animatable.View animation="fadeInDown" useNativeDriver>
             <Animated.Image
               style={{
                 width: logo.x,
@@ -124,7 +124,7 @@ export default function Register({ navigation }) {
               source={require("../../../../assets/logo.png")}
             ></Animated.Image>
           </Animatable.View>
-          <Animatable.View animation="fadeInUp">
+          <Animatable.View animation="fadeInUp" useNativeDriver>
             <TextInput
               placeholder="Nome"
               style={styles.input}
@@ -152,7 +152,7 @@ export default function Register({ navigation }) {
               onChangeText={(text) => setPass(text)}
             ></TextInput>
           </Animatable.View>
-          <Animatable.View animation="fadeInUp">
+          <Animatable.View animation="fadeInUp" useNativeDriver>
             <Button
               mode="contained"
               onPress={() => register()}

@@ -99,7 +99,7 @@ export default function planoTreinoList({ navigation }) {
       <View style={styles.container}>
         <Text style={styles.pageTitle}>Planos Treino</Text>
         <StatusBar style="auto" />
-        <Animatable.View animation="fadeInUp">
+        <Animatable.View animation="fadeInUp" useNativeDriver>
           <FlatList
             data={planos}
             keyExtractor={({ id }, index) => id}

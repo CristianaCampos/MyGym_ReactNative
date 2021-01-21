@@ -47,7 +47,13 @@ export default function dadosCorporais({ navigation }) {
         </Button>
       );
     } else {
-      return null;
+      return (
+        <View
+          style={{
+            marginBottom: 140,
+          }}
+        ></View>
+      );
     }
   }
 
@@ -74,10 +80,6 @@ export default function dadosCorporais({ navigation }) {
     setEditable(false);
     setInputStyle(styles.inputGrey);
   }
-
-  useEffect(() => {
-    desativarVisible();
-  }, []);
 
   async function getUser() {
     try {
@@ -188,6 +190,7 @@ export default function dadosCorporais({ navigation }) {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", (e) => {
+      desativarVisible();
       getData();
     });
 
@@ -274,7 +277,7 @@ export default function dadosCorporais({ navigation }) {
               source={require("../../../assets/iconPerfil.png")}
               style={styles.imgPerfil}
             />
-            <Animatable.View animation="fadeInUp">
+            <Animatable.View animation="fadeInUp" useNativeDriver>
               <Text style={styles.textInput}>Peso</Text>
               <TextInput
                 editable={editable}

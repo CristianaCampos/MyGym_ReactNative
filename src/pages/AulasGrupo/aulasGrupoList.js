@@ -71,7 +71,7 @@ export default function aulaGrupoList({ navigation }) {
       <View style={styles.container}>
         <Text style={styles.pageTitle}>Aulas Grupo</Text>
         <StatusBar style="auto" />
-        <Animatable.View animation="fadeInUp">
+        <Animatable.View animation="fadeInUp" useNativeDriver>
           <FlatList
             data={aulas}
             extraData={loadAulas()}

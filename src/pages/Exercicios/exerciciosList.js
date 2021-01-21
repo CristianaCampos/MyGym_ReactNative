@@ -73,7 +73,7 @@ export default function exercicioList({ navigation }) {
       <View style={styles.container}>
         <Text style={styles.pageTitle}>Exercícios</Text>
         <StatusBar style="auto" />
-        <Animatable.View animation="fadeInUp">
+        <Animatable.View animation="fadeInUp" useNativeDriver>
           <FlatList
             data={exercises}
             extraData={loadExercises()}
