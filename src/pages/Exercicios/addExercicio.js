@@ -7,34 +7,40 @@ import {
   View,
   Text,
   KeyboardAvoidingView,
-  ScrollView,
+  TouchableOpacity,
   BackHandler,
 } from "react-native";
-import { Button } from "react-native-paper";
+import { Button, Divider, Modal, Provider, Portal } from "react-native-paper";
+import * as Animatable from "react-native-animatable";
 
+import IconsFA from "react-native-vector-icons/FontAwesome";
+
+import { storage } from "../../constant/storage";
 import { database } from "../../constant/database";
 import { styles } from "../../constant/styles";
+import { colors } from "../../constant/colors";
 
 export default function AddExercicio({ navigation }) {
   const uri =
     "http://" + database.ip + ":" + database.port + "/php/insertExercicio.php";
 
-  const [userId, setUserId] = useState("");
+  const [user, setUser] = useState([]);
+
   const [nome, setNome] = useState("");
   const [zonaMuscular, setZonaMuscular] = useState("");
 
-  async function getAsyncUser() {
-    try {
-      let id = await AsyncStorage.getItem("user_id");
-      id = JSON.parse(id);
+  const [modalSucesso, setModalSucesso] = useState(false);
+  const [modalErro, setModalErro] = useState(false);
 
-      if (id != null) {
-        setUserId(id);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  const showModalErro = () => setModalErro(true);
+  const hideModalErro = () => {
+    setModalErro(false);
+  };
+
+  const showModalSucesso = () => setModalSucesso(true);
+  const hideModalSucesso = () => {
+    setModalSucesso(false);
+  };
 
   function add() {
     if (nome != "" && zonaMuscular != "") {
@@ -45,7 +51,7 @@ export default function AddExercicio({ navigation }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: userId,
+          userId: user.id,
           nome: nome,
           zonaMuscular: zonaMuscular,
         }),
@@ -53,25 +59,27 @@ export default function AddExercicio({ navigation }) {
         .then((response) => response.json())
         .then((json) => {
           if (json.message == "success") {
-            Alert.alert(
-              "Sucesso",
-              "Exercício registado com sucesso!",
-              [{ text: "OK", style: "default" }],
-              { cancelable: true }
-            );
-            navigation.navigate("ExerciciosList");
+            showModalSucesso(true);
+            // Alert.alert(
+            //   "Sucesso",
+            //   "Exercício registado com sucesso!",
+            //   [{ text: "OK", style: "default" }],
+            //   { cancelable: true }
+            // );
+            // navigation.navigate("ExerciciosList");
           }
         })
         .catch((error) => {
           console.log(error);
         });
     } else {
-      Alert.alert(
-        "Erro",
-        "Preencha todos os campos!",
-        [{ text: "OK", style: "destructive" }],
-        { cancelable: true }
-      );
+      showModalErro(true);
+      // Alert.alert(
+      //   "Erro",
+      //   "Preencha todos os campos!",
+      //   [{ text: "OK", style: "destructive" }],
+      //   { cancelable: true }
+      // );
     }
   }
 
@@ -82,17 +90,130 @@ export default function AddExercicio({ navigation }) {
   }, []);
 
   useEffect(() => {
-    getAsyncUser();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", () => {
+      async function getUser() {
+        try {
+          let value = await AsyncStorage.getItem(storage.user);
+          value = JSON.parse(value);
+
+          if (value != null) {
+            setUser(value);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      getUser().then();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   return (
-    <View style={{ backgroundColor: "white", height: "100%" }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS == "ios" ? "padding" : "height"}
-        style={styles.container}
-      >
-        <ScrollView>
+    <Provider>
+      <View style={styles.containerPadding}>
+        <KeyboardAvoidingView>
           <StatusBar style="auto" />
+          {/* modal sucesso */}
+          <Portal>
+            <Modal
+              visible={modalSucesso}
+              onDismiss={hideModalSucesso}
+              contentContainerStyle={styles.modal}
+            >
+              <View
+                style={{
+                  padding: 20,
+                  flexDirection: "column",
+                  flex: 1,
+                }}
+              >
+                <Text style={styles.modalTitle}>Sucesso!</Text>
+                <Divider style={{ backgroundColor: "black", borderWidth: 1 }} />
+                <View style={{ flexDirection: "row", marginTop: 20 }}>
+                  <Animatable.View animation="tada" useNativeDriver={true}>
+                    <IconsFA
+                      style={styles.modalIcon}
+                      size={30}
+                      color={colors.textWhite}
+                      name="check"
+                    />
+                  </Animatable.View>
+                  <View>
+                    <Text style={styles.modalMensagem}>
+                      Exercício registado com {"\n"}sucesso.
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  style={{ alignSelf: "flex-end", marginTop: 5 }}
+                >
+                  <Text
+                    style={{
+                      color: colors.main,
+                      fontFamily: "Poppins_Bold",
+                      fontSize: 16,
+                    }}
+                    onPress={() => {
+                      hideModalSucesso(), navigation.goBack();
+                    }}
+                  >
+                    OK
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </Modal>
+          </Portal>
+          {/*  */}
+          {/* modal erro */}
+          <Portal>
+            <Modal
+              visible={modalErro}
+              onDismiss={hideModalErro}
+              contentContainerStyle={styles.modal}
+            >
+              <View
+                style={{
+                  padding: 20,
+                  flexDirection: "column",
+                  flex: 1,
+                }}
+              >
+                <Text style={styles.modalTitle}>Erro!</Text>
+                <Divider style={{ backgroundColor: "black", borderWidth: 1 }} />
+                <View style={{ flexDirection: "row", marginTop: 20 }}>
+                  <Animatable.View animation="tada" useNativeDriver={true}>
+                    <IconsFA
+                      style={styles.modalIcon}
+                      size={30}
+                      color={colors.textWhite}
+                      name="remove"
+                    />
+                  </Animatable.View>
+                  <View>
+                    <Text style={styles.modalMensagem}>
+                      Preencha todos os campos!
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  style={{ alignSelf: "flex-end", marginTop: 5 }}
+                >
+                  <Text
+                    style={{
+                      color: colors.main,
+                      fontFamily: "Poppins_Bold",
+                      fontSize: 16,
+                    }}
+                    onPress={() => hideModalErro()}
+                  >
+                    OK
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </Modal>
+          </Portal>
+          {/*  */}
           <Text style={styles.pageTitle}>Criar Exercício</Text>
           <Text style={styles.textInput}>Nome Exercício</Text>
           <TextInput
@@ -109,8 +230,8 @@ export default function AddExercicio({ navigation }) {
           <Button mode="contained" onPress={() => add()} style={styles.mainBtn}>
             <Text style={styles.mainBtnText}>Criar Exercício</Text>
           </Button>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
+        </KeyboardAvoidingView>
+      </View>
+    </Provider>
   );
 }

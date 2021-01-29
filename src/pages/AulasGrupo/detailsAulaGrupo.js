@@ -10,14 +10,25 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Image,
+  Picker,
+  TouchableOpacity,
 } from "react-native";
-import { Button } from "react-native-paper";
-import { FAB } from "react-native-paper";
-import DropDownPicker from "react-native-dropdown-picker";
+import {
+  FAB,
+  Button,
+  Modal,
+  Divider,
+  Provider,
+  Portal,
+} from "react-native-paper";
+import * as Animatable from "react-native-animatable";
+
+import IconsFA from "react-native-vector-icons/FontAwesome";
 
 import { database } from "../../constant/database";
 import { storage } from "../../constant/storage";
 import { styles } from "../../constant/styles";
+import { colors } from "../../constant/colors";
 
 export default function DetailsAulaGrupo({ route, navigation }) {
   const uriEdit =
@@ -25,12 +36,25 @@ export default function DetailsAulaGrupo({ route, navigation }) {
 
   const { aula } = route.params;
 
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState([]);
   const [nome, setNome] = useState("");
   const [diaSemana, setDiaSemana] = useState("");
 
   const [editable, setEditable] = useState(false);
   const [inputStyle, setInputStyle] = useState(styles.inputGrey);
+
+  const [modalSucesso, setModalSucesso] = useState(false);
+  const [modalErro, setModalErro] = useState(false);
+
+  const showModalSucesso = () => setModalSucesso(true);
+  const hideModalSucesso = () => {
+    setModalSucesso(false);
+  };
+
+  const showModalErro = () => setModalErro(true);
+  const hideModalErro = () => {
+    setModalErro(false);
+  };
 
   function seeButtonAtualizar() {
     if (editable) {
@@ -58,6 +82,45 @@ export default function DetailsAulaGrupo({ route, navigation }) {
     }
   }
 
+  function seeForm() {
+    if (!editable) {
+      return (
+        <TextInput
+          placeholder="Dia da Semana"
+          editable={editable}
+          style={inputStyle}
+          value={diaSemana}
+          onChangeText={(txt) => setDiaSemana(txt)}
+        ></TextInput>
+      );
+    } else {
+      return (
+        <Picker
+          itemStyle={{
+            color: "black",
+            fontFamily: "Poppins_Regular",
+            fontSize: 15,
+            height: 100,
+            borderRadius: 7,
+            marginTop: 0,
+          }}
+          mode="dropdown"
+          selectedValue={diaSemana}
+          onValueChange={(value, index) => setDiaSemana(value)}
+        >
+          <Picker.Item label="---" value="---" />
+          <Picker.Item label="Segunda-Feira" value="Segunda-Feira" />
+          <Picker.Item label="Terça-Feira" value="Terça-Feira" />
+          <Picker.Item label="Quarta-Feira" value="Quarta-Feira" />
+          <Picker.Item label="Quinta-Feira" value="Quinta-Feira" />
+          <Picker.Item label="Sexta-Feira" value="Sexta-Feira" />
+          <Picker.Item label="Sábado" value="Sábado" />
+          <Picker.Item label="Domingo" value="Domingo" />
+        </Picker>
+      );
+    }
+  }
+
   function ativarVisible() {
     setEditable(true);
     setInputStyle(styles.input);
@@ -66,23 +129,6 @@ export default function DetailsAulaGrupo({ route, navigation }) {
   function desativarVisible() {
     setEditable(false);
     setInputStyle(styles.inputGrey);
-  }
-
-  useEffect(() => {
-    desativarVisible();
-  }, []);
-
-  async function getUser() {
-    try {
-      let value = await AsyncStorage.getItem(storage.user);
-      value = JSON.parse(value);
-
-      if (value != null) {
-        setUser(value);
-      }
-    } catch (error) {
-      console.log(error);
-    }
   }
 
   function getNome() {
@@ -94,24 +140,10 @@ export default function DetailsAulaGrupo({ route, navigation }) {
   }
 
   function getData() {
-    getUser();
+    desativarVisible();
     getNome();
     getDiaSemana();
   }
-
-  useEffect(() => {
-    BackHandler.addEventListener("hardwareBackPress", () => true);
-    return () =>
-      BackHandler.removeEventListener("hardwareBackPress", () => true);
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", (e) => {
-      getData();
-    });
-
-    return unsubscribe;
-  }, [navigation]);
 
   function edit() {
     if (nome != "" && diaSemana != "") {
@@ -132,34 +164,172 @@ export default function DetailsAulaGrupo({ route, navigation }) {
         .then((json) => {
           if (json.message === "success") {
             desativarVisible();
-            Alert.alert(
-              "Sucesso",
-              "Aula atualizada com sucesso!",
-              [{ text: "OK", style: "default" }],
-              { cancelable: true }
-            );
-            navigation.goBack();
+            showModalSucesso(true);
+            // Alert.alert(
+            //   "Sucesso",
+            //   "Aula atualizada com sucesso!",
+            //   [{ text: "OK", style: "default" }],
+            //   { cancelable: true }
+            // );
+            // navigation.goBack();
           }
         })
         .catch((error) => {
           console.log(error);
         });
     } else {
-      Alert.alert(
-        "Erro",
-        "Preencha todos os campos!",
-        [{ text: "OK", style: "destructive" }],
-        { cancelable: true }
-      );
+      showModalErro(true);
+      // Alert.alert(
+      //   "Erro",
+      //   "Preencha todos os campos!",
+      //   [{ text: "OK", style: "destructive" }],
+      //   { cancelable: true }
+      // );
     }
   }
 
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", () => true);
+    return () =>
+      BackHandler.removeEventListener("hardwareBackPress", () => true);
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      async function getUser() {
+        try {
+          let value = await AsyncStorage.getItem(storage.user);
+          value = JSON.parse(value);
+
+          if (value != null) {
+            setUser(value);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      getUser().then();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    if (user) {
+      getData();
+    }
+  }, [user]);
+
   return (
-    <View style={{ backgroundColor: "white", height: "100%" }}>
-      <KeyboardAvoidingView>
-        <StatusBar style="auto" />
-        <ScrollView>
-          <View style={styles.container}>
+    <Provider>
+      <View style={styles.container}>
+        <KeyboardAvoidingView>
+          <ScrollView style={{ paddingHorizontal: "5%" }}>
+            <StatusBar style="auto" />
+            {/* modal sucesso */}
+            <Portal>
+              <Modal
+                visible={modalSucesso}
+                onDismiss={hideModalSucesso}
+                contentContainerStyle={styles.modal}
+              >
+                <View
+                  style={{
+                    padding: 20,
+                    flexDirection: "column",
+                    flex: 1,
+                  }}
+                >
+                  <Text style={styles.modalTitle}>Sucesso!</Text>
+                  <Divider
+                    style={{ backgroundColor: "black", borderWidth: 1 }}
+                  />
+                  <View style={{ flexDirection: "row", marginTop: 20 }}>
+                    <Animatable.View animation="tada" useNativeDriver={true}>
+                      <IconsFA
+                        style={styles.modalIcon}
+                        size={30}
+                        color={colors.textWhite}
+                        name="check"
+                      />
+                    </Animatable.View>
+                    <View>
+                      <Text style={styles.modalMensagem}>
+                        Aula atualizada com {"\n"}sucesso.
+                      </Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={{ alignSelf: "flex-end", marginTop: 5 }}
+                  >
+                    <Text
+                      style={{
+                        color: colors.main,
+                        fontFamily: "Poppins_Bold",
+                        fontSize: 16,
+                      }}
+                      onPress={() => {
+                        hideModalSucesso();
+                      }}
+                    >
+                      OK
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </Modal>
+            </Portal>
+            {/*  */}
+            {/* modal erro */}
+            <Portal>
+              <Modal
+                visible={modalErro}
+                onDismiss={hideModalErro}
+                contentContainerStyle={styles.modal}
+              >
+                <View
+                  style={{
+                    padding: 20,
+                    flexDirection: "column",
+                    flex: 1,
+                  }}
+                >
+                  <Text style={styles.modalTitle}>Erro!</Text>
+                  <Divider
+                    style={{ backgroundColor: "black", borderWidth: 1 }}
+                  />
+                  <View style={{ flexDirection: "row", marginTop: 20 }}>
+                    <Animatable.View animation="tada" useNativeDriver={true}>
+                      <IconsFA
+                        style={styles.modalIcon}
+                        size={30}
+                        color={colors.textWhite}
+                        name="remove"
+                      />
+                    </Animatable.View>
+                    <View>
+                      <Text style={styles.modalMensagem}>
+                        Preencha todos os campos!
+                      </Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={{ alignSelf: "flex-end", marginTop: 5 }}
+                  >
+                    <Text
+                      style={{
+                        color: colors.main,
+                        fontFamily: "Poppins_Bold",
+                        fontSize: 16,
+                      }}
+                      onPress={() => hideModalErro()}
+                    >
+                      OK
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </Modal>
+            </Portal>
+            {/*  */}
             <Text style={styles.pageTitle}>Detalhes Aula Grupo</Text>
             <Image
               style={{ width: "100%", height: 200 }}
@@ -174,66 +344,12 @@ export default function DetailsAulaGrupo({ route, navigation }) {
               onChangeText={(txt) => setNome(txt)}
             ></TextInput>
             <Text style={styles.textInput}>Dia da Semana</Text>
-            <DropDownPicker
-              items={[
-                {
-                  label: "---",
-                  value: "---",
-                  disabled: true,
-                },
-                {
-                  label: "Segunda-Feira",
-                  value: "Segunda-Feira",
-                },
-                {
-                  label: "Terça-Feira",
-                  value: "Terça-Feira",
-                },
-                {
-                  label: "Quarta-Feira",
-                  value: "Quarta-Feira",
-                },
-                {
-                  label: "Quinta-Feira",
-                  value: "Quinta-Feira",
-                },
-                {
-                  label: "Sexta-Feira",
-                  value: "Sexta-Feira",
-                },
-                {
-                  label: "Sábado",
-                  value: "Sábado",
-                },
-                {
-                  label: "Domingo",
-                  value: "Domingo",
-                },
-              ]}
-              defaultValue={diaSemana}
-              containerStyle={{
-                height: 50,
-                marginTop: "2%",
-              }}
-              style={{
-                borderColor: "#B72727",
-              }}
-              labelStyle={{
-                fontSize: 15,
-                fontFamily: "Poppins_Regular",
-              }}
-              dropDownStyle={{
-                justifyContent: "flex-start",
-                backgroundColor: "#fff",
-                fontFamily: "Poppins_Regular",
-              }}
-              onChangeItem={(item) => setDiaSemana(item.value)}
-            />
+            {seeForm()}
             {seeButtonAtualizar()}
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-      {seeButtonFab()}
-    </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+        {seeButtonFab()}
+      </View>
+    </Provider>
   );
 }

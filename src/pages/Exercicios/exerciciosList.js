@@ -1,8 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, FlatList, BackHandler } from "react-native";
-import { Button, Card } from "react-native-paper";
+import { View, Text, FlatList, BackHandler } from "react-native";
 import { FAB } from "react-native-paper";
 import * as Animatable from "react-native-animatable";
 
@@ -10,26 +9,15 @@ import ListExercicios from "../../components/Lists/ListExercicios";
 
 import { database } from "../../constant/database";
 import { styles } from "../../constant/styles";
+import { storage } from "../../constant/storage";
 
 export default function exercicioList({ navigation }) {
   const uri =
     "http://" + database.ip + ":" + database.port + "/php/getExercicios.php";
 
-  const [userId, setUserId] = useState("");
+  const [user, setUser] = useState([]);
+
   const [exercises, setExercises] = useState([]);
-
-  async function getAsyncUser() {
-    try {
-      let id = await AsyncStorage.getItem("user_id");
-      id = JSON.parse(id);
-
-      if (id != null) {
-        setUserId(id);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   function loadExercises() {
     fetch(uri, {
@@ -39,7 +27,7 @@ export default function exercicioList({ navigation }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId: JSON.stringify(userId),
+        userId: user.id,
       }),
     })
       .then((response) => response.json())
@@ -60,41 +48,55 @@ export default function exercicioList({ navigation }) {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", (e) => {
-      getAsyncUser();
-      loadExercises();
+    const unsubscribe = navigation.addListener("focus", () => {
+      async function getUser() {
+        try {
+          let value = await AsyncStorage.getItem(storage.user);
+          value = JSON.parse(value);
+
+          if (value != null) {
+            setUser(value);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      getUser().then();
     });
 
     return unsubscribe;
   }, [navigation]);
 
+  useEffect(() => {
+    if (user) {
+      loadExercises();
+    }
+  }, [user]);
+
   return (
-    <View style={{ backgroundColor: "white", height: "100%" }}>
-      <View style={styles.container}>
-        <Text style={styles.pageTitle}>Exercícios</Text>
-        <StatusBar style="auto" />
-        <Animatable.View animation="fadeInUp" useNativeDriver>
-          <FlatList
-            data={exercises}
-            extraData={loadExercises()}
-            keyExtractor={({ id }, index) => id}
-            renderItem={({ item }) => (
-              <ListExercicios
-                id={item.id}
-                nome={item.nome}
-                zonaMuscular={item.zonaMuscular}
-                exercicio={item}
-                navigation={navigation}
-              />
-            )}
-          />
-        </Animatable.View>
-        <FAB
-          style={styles.fab}
-          icon="plus"
-          onPress={() => navigation.navigate("AddExercicio")}
+    <View style={styles.containerPadding}>
+      <Text style={styles.pageTitle}>Exercícios</Text>
+      <StatusBar style="auto" />
+      <Animatable.View animation="fadeInUp" useNativeDriver={true}>
+        <FlatList
+          data={exercises}
+          keyExtractor={({ id }, index) => id}
+          renderItem={({ item }) => (
+            <ListExercicios
+              id={item.id}
+              nome={item.nome}
+              zonaMuscular={item.zonaMuscular}
+              exercicio={item}
+              navigation={navigation}
+            />
+          )}
         />
-      </View>
+      </Animatable.View>
+      <FAB
+        style={styles.fab}
+        icon="plus"
+        onPress={() => navigation.navigate("AddExercicio")}
+      />
     </View>
   );
 }

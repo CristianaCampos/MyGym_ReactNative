@@ -1,8 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState, useRef } from "react";
-import { StyleSheet, View, Text, FlatList, BackHandler } from "react-native";
-import { Button, Card } from "react-native-paper";
+import React, { useEffect, useState } from "react";
+import { View, Text, FlatList, BackHandler } from "react-native";
 import { FAB } from "react-native-paper";
 import { database } from "../../constant/database";
 import * as Animatable from "react-native-animatable";
@@ -15,38 +14,9 @@ export default function planoTreinoList({ navigation }) {
   const uri =
     "http://" + database.ip + ":" + database.port + "/php/getPlanos.php";
 
-  const uriExercicios =
-    "http://" + database.ip + ":" + database.port + "/php/getExercicios.php";
-
-  const [userId, setUserId] = useState("");
+  const [user, setUser] = useState([]);
   const [planos, setPlanos] = useState([]);
   const [exercicios, setExercicios] = useState([]);
-
-  async function getAsyncUser() {
-    try {
-      let id = await AsyncStorage.getItem("user_id");
-      id = JSON.parse(id);
-
-      if (id != null) {
-        setUserId(id);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async function getAsyncExercicios() {
-    try {
-      let id = await AsyncStorage.getItem(storage.exercicios);
-      id = JSON.parse(id);
-
-      if (id != null) {
-        setExercicios(id);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   function loadPlanos() {
     fetch(uri, {
@@ -56,7 +26,7 @@ export default function planoTreinoList({ navigation }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId: userId,
+        userId: user.id,
       }),
     })
       .then((response) => response.json())
@@ -76,41 +46,69 @@ export default function planoTreinoList({ navigation }) {
       BackHandler.removeEventListener("hardwareBackPress", () => true);
   }, []);
 
-  function getData() {
-    getAsyncUser();
-    getAsyncExercicios();
-  }
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      async function getUser() {
+        try {
+          let value = await AsyncStorage.getItem(storage.user);
+          value = JSON.parse(value);
 
-  let isRendered = useRef(false);
+          if (value != null) {
+            setUser(value);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
+      getUser().then();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   useEffect(() => {
-    isRendered = true;
-    const unsubscribe = navigation.addListener("focus", (e) => {
-      getData();
+    const unsubscribe = navigation.addListener("focus", () => {
+      async function getExercicios() {
+        try {
+          let id = await AsyncStorage.getItem(storage.exercicios);
+          id = JSON.parse(id);
+
+          if (id != null) {
+            setExercicios(id);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      getExercicios().then();
     });
-    return () => {
-      isRendered = false;
-      unsubscribe;
-    };
-  }, []);
+
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    if (user && exercicios) {
+      loadPlanos();
+    }
+  }, [user, exercicios]);
 
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
-      <View style={styles.container}>
+      <View style={styles.containerPadding}>
         <Text style={styles.pageTitle}>Planos Treino</Text>
         <StatusBar style="auto" />
-        <Animatable.View animation="fadeInUp" useNativeDriver>
+        <Animatable.View animation="fadeInUp" useNativeDriver={true}>
           <FlatList
             data={planos}
             keyExtractor={({ id }, index) => id}
-            extraData={loadPlanos()}
             renderItem={({ item }) => (
               <ListPlano
                 id={item.id}
                 nome={item.nome}
                 diaSemana={item.diaSemana}
                 plano={item}
-                exercicios={exercicios}
+                // exercicios={exercicios}
                 navigation={navigation}
               />
             )}
@@ -119,7 +117,7 @@ export default function planoTreinoList({ navigation }) {
         <FAB
           style={styles.fab}
           icon="plus"
-          onPress={() => navigation.navigate("AddPlanoTreino", { id: userId })}
+          onPress={() => navigation.navigate("AddPlanoTreino", { id: user.id })}
         />
       </View>
     </View>

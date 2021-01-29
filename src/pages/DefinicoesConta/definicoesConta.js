@@ -10,20 +10,24 @@ import {
   TextInput,
   BackHandler,
   Alert,
+  TouchableOpacity,
 } from "react-native";
-import { Button } from "react-native-paper";
+import { Button, Divider, Modal, Provider, Portal } from "react-native-paper";
 import { FAB } from "react-native-paper";
 import * as Animatable from "react-native-animatable";
+
+import IconsFA from "react-native-vector-icons/FontAwesome";
 
 import { database } from "../../constant/database";
 import { storage } from "../../constant/storage";
 import { styles } from "../../constant/styles";
+import { colors } from "../../constant/colors";
 
 export default function AccountConfig({ navigation }) {
   const uriEdit =
     "http://" + database.ip + ":" + database.port + "/php/editDadosConta.php";
 
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState([]);
 
   const [nome, setNome] = useState("");
   const [nomeUtilizador, setNomeUtilizador] = useState("");
@@ -33,6 +37,19 @@ export default function AccountConfig({ navigation }) {
 
   const [editable, setEditable] = useState(false);
   const [inputStyle, setInputStyle] = useState(styles.inputGrey);
+
+  const [modalSucesso, setModalSucesso] = useState(false);
+  const [modalErro, setModalErro] = useState(false);
+
+  const showModalSucesso = () => setModalSucesso(true);
+  const hideModalSucesso = () => {
+    setModalSucesso(false);
+  };
+
+  const showModalErro = () => setModalErro(true);
+  const hideModalErro = () => {
+    setModalErro(false);
+  };
 
   function seeButtonAtualizar() {
     if (editable) {
@@ -74,19 +91,6 @@ export default function AccountConfig({ navigation }) {
   function desativarVisible() {
     setEditable(false);
     setInputStyle(styles.inputGrey);
-  }
-
-  async function getUser() {
-    try {
-      let value = await AsyncStorage.getItem(storage.user);
-      value = JSON.parse(value);
-
-      if (value != null) {
-        setUser(value);
-      }
-    } catch (error) {
-      console.log(error);
-    }
   }
 
   async function getNome() {
@@ -155,28 +159,13 @@ export default function AccountConfig({ navigation }) {
   }
 
   function getData() {
-    getUser();
+    desativarVisible();
     getNome();
     getNomeUtilizador();
     getEmail();
     getContacto();
     getPass();
   }
-
-  useEffect(() => {
-    BackHandler.addEventListener("hardwareBackPress", () => true);
-    return () =>
-      BackHandler.removeEventListener("hardwareBackPress", () => true);
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", (e) => {
-      desativarVisible();
-      getData();
-    });
-
-    return unsubscribe;
-  }, [navigation]);
 
   async function updateStorage() {
     try {
@@ -218,74 +207,214 @@ export default function AccountConfig({ navigation }) {
           if (json.message == "success") {
             desativarVisible();
             updateStorage();
-            Alert.alert(
-              "Sucesso",
-              "Dados atualizados com sucesso!",
-              [{ text: "OK", style: "default" }],
-              { cancelable: true }
-            );
+            showModalSucesso(true);
+            // Alert.alert(
+            //   "Sucesso",
+            //   "Dados atualizados com sucesso!",
+            //   [{ text: "OK", style: "default" }],
+            //   { cancelable: true }
+            // );
           }
         })
         .catch((error) => {
           console.log(error);
         });
     } else {
-      Alert.alert(
-        "Erro",
-        "Preencha todos os campos!",
-        [{ text: "OK", style: "destructive" }],
-        { cancelable: true }
-      );
+      showModalErro(true);
+      // Alert.alert(
+      //   "Erro",
+      //   "Preencha todos os campos!",
+      //   [{ text: "OK", style: "destructive" }],
+      //   { cancelable: true }
+      // );
     }
   }
 
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", () => true);
+    return () =>
+      BackHandler.removeEventListener("hardwareBackPress", () => true);
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      async function getUser() {
+        try {
+          let value = await AsyncStorage.getItem(storage.user);
+          value = JSON.parse(value);
+
+          if (value != null) {
+            setUser(value);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      getUser().then();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    if (user) {
+      getData();
+    }
+  }, [user]);
+
   return (
-    <View style={{ backgroundColor: "white", flexGrow: 1 }}>
-      <KeyboardAvoidingView style={styles.container}>
-        <ScrollView>
-          <StatusBar style="auto" />
-          <Text style={styles.pageTitle}>Definições da Conta</Text>
-          <Image
-            source={require("../../../assets/iconPerfil.png")}
-            style={styles.imgPerfil}
-          />
-          <Text style={styles.meunome}>{nome}</Text>
-          <Text style={styles.meunome}>@{nomeUtilizador}</Text>
-          <Animatable.View animation="fadeInUp" useNativeDriver>
-            <Text style={styles.textInput}>Nome</Text>
-            <TextInput
-              value={nome}
-              editable={editable}
-              style={inputStyle}
-              onChangeText={(txt) => setNome(txt)}
-            ></TextInput>
-            <Text style={styles.textInput}>Email</Text>
-            <TextInput
-              value={email}
-              editable={editable}
-              style={inputStyle}
-              onChangeText={(txt) => setEmail(txt)}
-            ></TextInput>
-            <Text style={styles.textInput}>Contacto</Text>
-            <TextInput
-              value={contacto}
-              editable={editable}
-              style={inputStyle}
-              onChangeText={(txt) => setContacto(txt)}
-            ></TextInput>
-            <Text style={styles.textInput}>Password</Text>
-            <TextInput
-              value={pass}
-              secureTextEntry={true}
-              editable={editable}
-              style={inputStyle}
-              onChangeText={(txt) => setPass(txt)}
-            ></TextInput>
-          </Animatable.View>
-          {seeButtonAtualizar()}
-        </ScrollView>
-      </KeyboardAvoidingView>
-      {seeButtonFab()}
-    </View>
+    <Provider>
+      <View style={styles.container}>
+        <KeyboardAvoidingView>
+          <ScrollView style={{ paddingHorizontal: "5%" }}>
+            <StatusBar style="auto" />
+            {/* modal sucesso */}
+            <Portal>
+              <Modal
+                visible={modalSucesso}
+                onDismiss={hideModalSucesso}
+                contentContainerStyle={styles.modal}
+              >
+                <View
+                  style={{
+                    padding: 20,
+                    flexDirection: "column",
+                    flex: 1,
+                  }}
+                >
+                  <Text style={styles.modalTitle}>Sucesso!</Text>
+                  <Divider
+                    style={{ backgroundColor: "black", borderWidth: 1 }}
+                  />
+                  <View style={{ flexDirection: "row", marginTop: 20 }}>
+                    <Animatable.View animation="tada" useNativeDriver={true}>
+                      <IconsFA
+                        style={styles.modalIcon}
+                        size={30}
+                        color={colors.textWhite}
+                        name="check"
+                      />
+                    </Animatable.View>
+                    <View>
+                      <Text style={styles.modalMensagem}>
+                        Dados atualizados com {"\n"}sucesso.
+                      </Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={{ alignSelf: "flex-end", marginTop: 5 }}
+                  >
+                    <Text
+                      style={{
+                        color: colors.main,
+                        fontFamily: "Poppins_Bold",
+                        fontSize: 16,
+                      }}
+                      onPress={() => {
+                        hideModalSucesso();
+                      }}
+                    >
+                      OK
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </Modal>
+            </Portal>
+            {/*  */}
+            {/* modal erro */}
+            <Portal>
+              <Modal
+                visible={modalErro}
+                onDismiss={hideModalErro}
+                contentContainerStyle={styles.modal}
+              >
+                <View
+                  style={{
+                    padding: 20,
+                    flexDirection: "column",
+                    flex: 1,
+                  }}
+                >
+                  <Text style={styles.modalTitle}>Erro!</Text>
+                  <Divider
+                    style={{ backgroundColor: "black", borderWidth: 1 }}
+                  />
+                  <View style={{ flexDirection: "row", marginTop: 20 }}>
+                    <Animatable.View animation="tada" useNativeDriver={true}>
+                      <IconsFA
+                        style={styles.modalIcon}
+                        size={30}
+                        color={colors.textWhite}
+                        name="remove"
+                      />
+                    </Animatable.View>
+                    <View>
+                      <Text style={styles.modalMensagem}>
+                        Preencha todos os campos!
+                      </Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={{ alignSelf: "flex-end", marginTop: 5 }}
+                  >
+                    <Text
+                      style={{
+                        color: colors.main,
+                        fontFamily: "Poppins_Bold",
+                        fontSize: 16,
+                      }}
+                      onPress={() => hideModalErro()}
+                    >
+                      OK
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </Modal>
+            </Portal>
+            {/*  */}
+            <Text style={styles.pageTitle}>Definições da Conta</Text>
+            <Image
+              source={require("../../../assets/iconPerfil.png")}
+              style={styles.imgPerfil}
+            />
+            <Text style={styles.meunome}>{nome}</Text>
+            <Text style={styles.meunome}>@{nomeUtilizador}</Text>
+            <Animatable.View animation="fadeInUp" useNativeDriver={true}>
+              <Text style={styles.textInput}>Nome</Text>
+              <TextInput
+                value={nome}
+                editable={editable}
+                style={inputStyle}
+                onChangeText={(txt) => setNome(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Email</Text>
+              <TextInput
+                value={email}
+                editable={editable}
+                style={inputStyle}
+                onChangeText={(txt) => setEmail(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Contacto</Text>
+              <TextInput
+                value={contacto}
+                editable={editable}
+                style={inputStyle}
+                onChangeText={(txt) => setContacto(txt)}
+              ></TextInput>
+              <Text style={styles.textInput}>Password</Text>
+              <TextInput
+                value={pass}
+                secureTextEntry={true}
+                editable={editable}
+                style={inputStyle}
+                onChangeText={(txt) => setPass(txt)}
+              ></TextInput>
+            </Animatable.View>
+            {seeButtonAtualizar()}
+          </ScrollView>
+        </KeyboardAvoidingView>
+        {seeButtonFab()}
+      </View>
+    </Provider>
   );
 }

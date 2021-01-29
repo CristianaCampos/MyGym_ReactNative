@@ -3,7 +3,12 @@ import { colors } from "./colors";
 
 export const styles = StyleSheet.create({
   container: {
-    // justifyContent: "center",
+    height: "100%",
+    backgroundColor: "white",
+    flexGrow: 1,
+  },
+  containerPadding: {
+    height: "100%",
     paddingHorizontal: "5%",
     backgroundColor: "white",
     flexGrow: 1,
@@ -33,6 +38,11 @@ export const styles = StyleSheet.create({
     fontFamily: "Poppins_Bold",
     marginTop: "3%",
     textAlign: "center",
+  },
+  titleNome: {
+    fontFamily: "Poppins_Regular",
+    fontSize: 19,
+    color: "white",
   },
   textInput: {
     fontFamily: "Poppins_Regular",
@@ -81,14 +91,22 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 140,
   },
+  updateDataBtn: {
+    backgroundColor: colors.main,
+    marginTop: "8%",
+    height: 50,
+    justifyContent: "center",
+    marginBottom: 30,
+  },
   mainBtnText: {
     fontSize: 20,
     fontFamily: "Poppins_Regular",
   },
   textExercicios: {
-    fontSize: 20,
-    fontFamily: "Poppins_Bold",
+    fontSize: 17,
+    fontFamily: "Poppins_Regular",
     marginTop: "5%",
+    color: colors.textBlack,
   },
   btnLoginRegister: {
     backgroundColor: colors.main,
@@ -114,5 +132,36 @@ export const styles = StyleSheet.create({
     fontFamily: "Poppins_Regular",
     fontSize: 15,
     textAlign: "center",
+  },
+  modal: {
+    borderRadius: 7,
+    borderWidth: 2,
+    borderColor: colors.main,
+    backgroundColor: "white",
+    height: 200,
+    width: 350,
+    alignSelf: "center",
+  },
+  modalTitle: {
+    fontSize: 23,
+    fontFamily: "Poppins_Bold",
+    textAlign: "center",
+  },
+  modalIcon: {
+    backgroundColor: colors.main,
+    textAlign: "center",
+    paddingVertical: 6,
+    justifyContent: "center",
+    width: 60,
+    height: 60,
+    borderRadius: 50,
+  },
+  modalMensagem: {
+    color: colors.textBlack,
+    fontFamily: "Poppins_Regular",
+    fontSize: 17,
+    marginTop: 11,
+    alignItems: "flex-end",
+    paddingHorizontal: 10,
   },
 });

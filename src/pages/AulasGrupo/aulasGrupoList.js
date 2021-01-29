@@ -3,31 +3,20 @@ import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, BackHandler } from "react-native";
 import { FAB } from "react-native-paper";
-import { database } from "../../constant/database";
 import * as Animatable from "react-native-animatable";
-
 import ListAulas from "../../components/Lists/ListAulas";
+
+import { database } from "../../constant/database";
 import { styles } from "../../constant/styles";
+import { storage } from "../../constant/storage";
 
 export default function aulaGrupoList({ navigation }) {
   const uri =
     "http://" + database.ip + ":" + database.port + "/php/getAulas.php";
 
-  const [userId, setUserId] = useState("");
+  const [user, setUser] = useState([]);
+
   const [aulas, setAulas] = useState([]);
-
-  async function getAsyncUser() {
-    try {
-      let id = await AsyncStorage.getItem("user_id");
-      id = JSON.parse(id);
-
-      if (id != null) {
-        setUserId(id);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   function loadAulas() {
     fetch(uri, {
@@ -37,7 +26,7 @@ export default function aulaGrupoList({ navigation }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId: JSON.stringify(userId),
+        userId: user.id,
       }),
     })
       .then((response) => response.json())
@@ -58,41 +47,55 @@ export default function aulaGrupoList({ navigation }) {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", (e) => {
-      getAsyncUser();
-      loadAulas();
+    const unsubscribe = navigation.addListener("focus", () => {
+      async function getUser() {
+        try {
+          let value = await AsyncStorage.getItem(storage.user);
+          value = JSON.parse(value);
+
+          if (value != null) {
+            setUser(value);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      getUser().then();
     });
 
     return unsubscribe;
   }, [navigation]);
 
+  useEffect(() => {
+    if (user) {
+      loadAulas();
+    }
+  }, [user]);
+
   return (
-    <View style={{ backgroundColor: "white", height: "100%" }}>
-      <View style={styles.container}>
-        <Text style={styles.pageTitle}>Aulas Grupo</Text>
-        <StatusBar style="auto" />
-        <Animatable.View animation="fadeInUp" useNativeDriver>
-          <FlatList
-            data={aulas}
-            extraData={loadAulas()}
-            keyExtractor={({ id }, index) => id}
-            renderItem={({ item }) => (
-              <ListAulas
-                id={item.id}
-                nome={item.nome}
-                diaSemana={item.diaSemana}
-                aula={item}
-                navigation={navigation}
-              />
-            )}
-          />
-        </Animatable.View>
-        <FAB
-          style={styles.fab}
-          icon="plus"
-          onPress={() => navigation.navigate("AddAulaGrupo")}
+    <View style={styles.containerPadding}>
+      <Text style={styles.pageTitle}>Aulas Grupo</Text>
+      <StatusBar style="auto" />
+      <Animatable.View animation="fadeInUp" useNativeDriver={true}>
+        <FlatList
+          data={aulas}
+          keyExtractor={({ id }, index) => id}
+          renderItem={({ item }) => (
+            <ListAulas
+              id={item.id}
+              nome={item.nome}
+              diaSemana={item.diaSemana}
+              aula={item}
+              navigation={navigation}
+            />
+          )}
         />
-      </View>
+      </Animatable.View>
+      <FAB
+        style={styles.fab}
+        icon="plus"
+        onPress={() => navigation.navigate("AddAulaGrupo")}
+      />
     </View>
   );
 }

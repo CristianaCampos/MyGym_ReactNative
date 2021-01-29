@@ -10,14 +10,18 @@ import {
   Text,
   TextInput,
   BackHandler,
+  TouchableOpacity,
 } from "react-native";
-import { Button } from "react-native-paper";
+import { Button, Modal, Divider, Provider, Portal } from "react-native-paper";
 import { FAB } from "react-native-paper";
 import * as Animatable from "react-native-animatable";
+
+import IconsFA from "react-native-vector-icons/FontAwesome";
 
 import { database } from "../../constant/database";
 import { storage } from "../../constant/storage";
 import { styles } from "../../constant/styles";
+import { colors } from "../../constant/colors";
 
 export default function dadosCorporais({ navigation }) {
   const uriEdit =
@@ -27,7 +31,7 @@ export default function dadosCorporais({ navigation }) {
     database.port +
     "/php/editDadosCorporais.php";
 
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState([]);
   const [dadosCorporais, setDadosCorporais] = useState("");
 
   const [peso, setPeso] = useState("");
@@ -38,6 +42,19 @@ export default function dadosCorporais({ navigation }) {
 
   const [editable, setEditable] = useState(false);
   const [inputStyle, setInputStyle] = useState(styles.inputGrey);
+
+  const [modalSucesso, setModalSucesso] = useState(false);
+  const [modalErro, setModalErro] = useState(false);
+
+  const showModalSucesso = () => setModalSucesso(true);
+  const hideModalSucesso = () => {
+    setModalSucesso(false);
+  };
+
+  const showModalErro = () => setModalErro(true);
+  const hideModalErro = () => {
+    setModalErro(false);
+  };
 
   function seeButtonAtualizar() {
     if (editable) {
@@ -79,32 +96,6 @@ export default function dadosCorporais({ navigation }) {
   function desativarVisible() {
     setEditable(false);
     setInputStyle(styles.inputGrey);
-  }
-
-  async function getUser() {
-    try {
-      let value = await AsyncStorage.getItem(storage.user);
-      value = JSON.parse(value);
-
-      if (value != null) {
-        setUser(value);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async function getDadosCorporais() {
-    try {
-      let value = await AsyncStorage.getItem(storage.dadosCorporais);
-      value = JSON.parse(value);
-
-      if (value != null) {
-        setDadosCorporais(value);
-      }
-    } catch (error) {
-      console.log(error);
-    }
   }
 
   async function getPeso() {
@@ -173,29 +164,13 @@ export default function dadosCorporais({ navigation }) {
   }
 
   function getData() {
-    getUser();
-    getDadosCorporais();
+    desativarVisible();
     getPeso();
     getAltura();
     getMassaMagra();
     getMassaGorda();
     getMassaHidrica();
   }
-
-  useEffect(() => {
-    BackHandler.addEventListener("hardwareBackPress", () => true);
-    return () =>
-      BackHandler.removeEventListener("hardwareBackPress", () => true);
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", (e) => {
-      desativarVisible();
-      getData();
-    });
-
-    return unsubscribe;
-  }, [navigation]);
 
   async function updateStorage() {
     try {
@@ -245,39 +220,195 @@ export default function dadosCorporais({ navigation }) {
           if (json.message == "success") {
             desativarVisible();
             updateStorage();
-            Alert.alert(
-              "Sucesso",
-              "Dados atualizados com sucesso!",
-              [{ text: "OK", style: "default" }],
-              { cancelable: true }
-            );
+            showModalSucesso(true);
+            // Alert.alert(
+            //   "Sucesso",
+            //   "Dados atualizados com sucesso!",
+            //   [{ text: "OK", style: "default" }],
+            //   { cancelable: true }
+            // );
           }
         })
         .catch((error) => {
           console.log(error);
         });
     } else {
-      Alert.alert(
-        "Erro",
-        "Preencha todos os campos!",
-        [{ text: "OK", style: "destructive" }],
-        { cancelable: true }
-      );
+      showModalErro(true);
+      // Alert.alert(
+      //   "Erro",
+      //   "Preencha todos os campos!",
+      //   [{ text: "OK", style: "destructive" }],
+      //   { cancelable: true }
+      // );
     }
   }
 
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", () => true);
+    return () =>
+      BackHandler.removeEventListener("hardwareBackPress", () => true);
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      async function getUser() {
+        try {
+          let value = await AsyncStorage.getItem(storage.user);
+          value = JSON.parse(value);
+
+          if (value != null) {
+            setUser(value);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      getUser().then();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      async function getDadosCorporais() {
+        try {
+          let value = await AsyncStorage.getItem(storage.dadosCorporais);
+          value = JSON.parse(value);
+
+          if (value != null) {
+            setDadosCorporais(value);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      getDadosCorporais().then();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    if (user && dadosCorporais) {
+      getData();
+    }
+  }, [user, dadosCorporais]);
+
   return (
-    <View style={{ backgroundColor: "white", height: "100%" }}>
-      <KeyboardAvoidingView>
-        <ScrollView>
-          <View style={styles.container}>
+    <Provider>
+      <View style={styles.container}>
+        <KeyboardAvoidingView>
+          <ScrollView style={{ paddingHorizontal: "5%" }}>
             <StatusBar style="auto" />
+            {/* modal sucesso */}
+            <Portal>
+              <Modal
+                visible={modalSucesso}
+                onDismiss={hideModalSucesso}
+                contentContainerStyle={styles.modal}
+              >
+                <View
+                  style={{
+                    padding: 20,
+                    flexDirection: "column",
+                    flex: 1,
+                  }}
+                >
+                  <Text style={styles.modalTitle}>Sucesso!</Text>
+                  <Divider
+                    style={{ backgroundColor: "black", borderWidth: 1 }}
+                  />
+                  <View style={{ flexDirection: "row", marginTop: 20 }}>
+                    <Animatable.View animation="tada" useNativeDriver={true}>
+                      <IconsFA
+                        style={styles.modalIcon}
+                        size={30}
+                        color={colors.textWhite}
+                        name="check"
+                      />
+                    </Animatable.View>
+                    <View>
+                      <Text style={styles.modalMensagem}>
+                        Dados atualizados com {"\n"}sucesso.
+                      </Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={{ alignSelf: "flex-end", marginTop: 5 }}
+                  >
+                    <Text
+                      style={{
+                        color: colors.main,
+                        fontFamily: "Poppins_Bold",
+                        fontSize: 16,
+                      }}
+                      onPress={() => {
+                        hideModalSucesso();
+                      }}
+                    >
+                      OK
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </Modal>
+            </Portal>
+            {/*  */}
+            {/* modal erro */}
+            <Portal>
+              <Modal
+                visible={modalErro}
+                onDismiss={hideModalErro}
+                contentContainerStyle={styles.modal}
+              >
+                <View
+                  style={{
+                    padding: 20,
+                    flexDirection: "column",
+                    flex: 1,
+                  }}
+                >
+                  <Text style={styles.modalTitle}>Erro!</Text>
+                  <Divider
+                    style={{ backgroundColor: "black", borderWidth: 1 }}
+                  />
+                  <View style={{ flexDirection: "row", marginTop: 20 }}>
+                    <Animatable.View animation="tada" useNativeDriver={true}>
+                      <IconsFA
+                        style={styles.modalIcon}
+                        size={30}
+                        color={colors.textWhite}
+                        name="remove"
+                      />
+                    </Animatable.View>
+                    <View>
+                      <Text style={styles.modalMensagem}>
+                        Preencha todos os campos!
+                      </Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={{ alignSelf: "flex-end", marginTop: 5 }}
+                  >
+                    <Text
+                      style={{
+                        color: colors.main,
+                        fontFamily: "Poppins_Bold",
+                        fontSize: 16,
+                      }}
+                      onPress={() => hideModalErro()}
+                    >
+                      OK
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </Modal>
+            </Portal>
+            {/*  */}
             <Text style={styles.pageTitle}>Dados Corporais</Text>
             <Image
               source={require("../../../assets/iconPerfil.png")}
               style={styles.imgPerfil}
             />
-            <Animatable.View animation="fadeInUp" useNativeDriver>
+            <Animatable.View animation="fadeInUp" useNativeDriver={true}>
               <Text style={styles.textInput}>Peso</Text>
               <TextInput
                 editable={editable}
@@ -315,10 +446,10 @@ export default function dadosCorporais({ navigation }) {
               ></TextInput>
             </Animatable.View>
             {seeButtonAtualizar()}
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-      {seeButtonFab()}
-    </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+        {seeButtonFab()}
+      </View>
+    </Provider>
   );
 }
