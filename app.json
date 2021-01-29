@@ -24,7 +24,8 @@
     },
     "description": "",
     "android": {
-      "package": "com.cristianacc_.MyGym"
+      "package": "com.cristianacc_.MyGym",
+      "icon":"./assets/icon.png"
     }
   }
 }

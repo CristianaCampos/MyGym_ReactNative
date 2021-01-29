@@ -321,7 +321,7 @@ export default function dadosCorporais({ navigation }) {
                     <Animatable.View animation="tada" useNativeDriver={true}>
                       <IconsFA
                         style={styles.modalIcon}
-                        size={30}
+                        size={45}
                         color={colors.textWhite}
                         name="check"
                       />
@@ -374,7 +374,7 @@ export default function dadosCorporais({ navigation }) {
                     <Animatable.View animation="tada" useNativeDriver={true}>
                       <IconsFA
                         style={styles.modalIcon}
-                        size={30}
+                        size={45}
                         color={colors.textWhite}
                         name="remove"
                       />

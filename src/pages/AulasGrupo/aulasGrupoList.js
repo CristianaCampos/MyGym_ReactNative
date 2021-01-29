@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, BackHandler } from "react-native";
+import { View, Text, FlatList, BackHandler, ScrollView } from "react-native";
 import { FAB } from "react-native-paper";
 import * as Animatable from "react-native-animatable";
 import ListAulas from "../../components/Lists/ListAulas";
@@ -76,21 +76,23 @@ export default function aulaGrupoList({ navigation }) {
     <View style={styles.containerPadding}>
       <Text style={styles.pageTitle}>Aulas Grupo</Text>
       <StatusBar style="auto" />
-      <Animatable.View animation="fadeInUp" useNativeDriver={true}>
-        <FlatList
-          data={aulas}
-          keyExtractor={({ id }, index) => id}
-          renderItem={({ item }) => (
-            <ListAulas
-              id={item.id}
-              nome={item.nome}
-              diaSemana={item.diaSemana}
-              aula={item}
-              navigation={navigation}
-            />
-          )}
-        />
-      </Animatable.View>
+      <ScrollView>
+        <Animatable.View animation="fadeInUp" useNativeDriver={true}>
+          <FlatList
+            data={aulas}
+            keyExtractor={({ id }, index) => id}
+            renderItem={({ item }) => (
+              <ListAulas
+                id={item.id}
+                nome={item.nome}
+                diaSemana={item.diaSemana}
+                aula={item}
+                navigation={navigation}
+              />
+            )}
+          />
+        </Animatable.View>
+      </ScrollView>
       <FAB
         style={styles.fab}
         icon="plus"

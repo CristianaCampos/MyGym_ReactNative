@@ -108,7 +108,7 @@ export default function planoTreinoList({ navigation }) {
                 nome={item.nome}
                 diaSemana={item.diaSemana}
                 plano={item}
-                // exercicios={exercicios}
+                exercicios={exercicios}
                 navigation={navigation}
               />
             )}

@@ -8,7 +8,6 @@ import {
   View,
   BackHandler,
   ScrollView,
-  Alert,
   TouchableOpacity,
 } from "react-native";
 import { Button, Modal, Portal, Divider, Provider } from "react-native-paper";
@@ -45,9 +44,11 @@ export default function AddPlanoTreino({ route, navigation }) {
   const [diaSemana, setDiaSemana] = useState("---");
   const [exercicio1, setExercicio1] = useState("---");
   const [exercicio2, setExercicio2] = useState("---");
+  const [exercicio3, setExercicio3] = useState("---");
 
   const [exercicioId1, setExercicioId1] = useState("---");
   const [exercicioId2, setExercicioId2] = useState("---");
+  const [exercicioId3, setExercicioId3] = useState("---");
 
   const [user, setUser] = useState([]);
 
@@ -107,6 +108,9 @@ export default function AddPlanoTreino({ route, navigation }) {
           } else if (indice == 2) {
             setExercicio2(value);
             setExercicioId2(json.id);
+          } else if (indice == 3) {
+            setExercicio3(value);
+            setExercicioId3(json.id);
           }
         }
       })
@@ -129,24 +133,13 @@ export default function AddPlanoTreino({ route, navigation }) {
           diaSemana: diaSemana,
           idEx1: exercicioId1,
           idEx2: exercicioId2,
+          idEx3: exercicioId3,
         }),
       })
         .then((response) => response.json())
         .then((json) => {
           if (json.message == "success") {
             showModalSucesso(true);
-            // Alert.alert(
-            //   "Sucesso",
-            //   "Plano registado com sucesso!",
-            //   [
-            //     {
-            //       text: "OK",
-            //       style: "default",
-            //       onPress: () => navigation.navigate("PlanosTreinoList"),
-            //     },
-            //   ],
-            //   { cancelable: true }
-            // );
           } else {
             console.log("Erro");
           }
@@ -156,12 +149,6 @@ export default function AddPlanoTreino({ route, navigation }) {
         });
     } else {
       showModalErro(true);
-      // Alert.alert(
-      //   "Erro",
-      //   "Preencha todos os campos!",
-      //   [{ text: "OK", style: "destructive" }],
-      //   { cancelable: true }
-      // );
     }
   }
 
@@ -231,14 +218,14 @@ export default function AddPlanoTreino({ route, navigation }) {
                     <Animatable.View animation="tada" useNativeDriver={true}>
                       <IconsFA
                         style={styles.modalIcon}
-                        size={30}
+                        size={45}
                         color={colors.textWhite}
                         name="check"
                       />
                     </Animatable.View>
                     <View>
                       <Text style={styles.modalMensagem}>
-                        Plano registado com sucesso.
+                        Plano registado com {"\n"}sucesso.
                       </Text>
                     </View>
                   </View>
@@ -284,7 +271,7 @@ export default function AddPlanoTreino({ route, navigation }) {
                     <Animatable.View animation="tada" useNativeDriver={true}>
                       <IconsFA
                         style={styles.modalIcon}
-                        size={30}
+                        size={45}
                         color={colors.textWhite}
                         name="remove"
                       />
@@ -371,6 +358,21 @@ export default function AddPlanoTreino({ route, navigation }) {
               mode="dropdown"
               selectedValue={exercicio2}
               onValueChange={(value, index) => getIdExercicios(value, 2)}
+            >
+              {myExercicios}
+            </Picker>
+            <Picker
+              itemStyle={{
+                color: "black",
+                fontFamily: "Poppins_Regular",
+                fontSize: 15,
+                height: 100,
+                borderRadius: 7,
+                marginTop: 0,
+              }}
+              mode="dropdown"
+              selectedValue={exercicio3}
+              onValueChange={(value, index) => getIdExercicios(value, 3)}
             >
               {myExercicios}
             </Picker>

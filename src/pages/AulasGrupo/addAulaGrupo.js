@@ -63,13 +63,6 @@ export default function AddAulaGrupo({ navigation }) {
         .then((json) => {
           if (json.message == "success") {
             showModalSucesso(true);
-            // Alert.alert(
-            //   "Sucesso",
-            //   "Aula registada com sucesso!",
-            //   [{ text: "OK", style: "default" }],
-            //   { cancelable: true }
-            // );
-            navigation.navigate("AulasGrupoList");
           }
         })
         .catch((error) => {
@@ -77,12 +70,6 @@ export default function AddAulaGrupo({ navigation }) {
         });
     } else {
       showModalErro(true);
-      // Alert.alert(
-      //   "Erro",
-      //   "Preencha todos os campos!",
-      //   [{ text: "OK", style: "destructive" }],
-      //   { cancelable: true }
-      // );
     }
   }
 
@@ -136,14 +123,14 @@ export default function AddAulaGrupo({ navigation }) {
                 <Animatable.View animation="tada" useNativeDriver={true}>
                   <IconsFA
                     style={styles.modalIcon}
-                    size={30}
+                    size={45}
                     color={colors.textWhite}
                     name="check"
                   />
                 </Animatable.View>
                 <View>
                   <Text style={styles.modalMensagem}>
-                    Aula registada com sucesso.
+                    Aula registada com {"\n"}sucesso.
                   </Text>
                 </View>
               </View>
@@ -155,7 +142,7 @@ export default function AddAulaGrupo({ navigation }) {
                     fontSize: 16,
                   }}
                   onPress={() => {
-                    hideModalSucesso();
+                    hideModalSucesso(), navigation.goBack();
                   }}
                 >
                   OK
@@ -185,7 +172,7 @@ export default function AddAulaGrupo({ navigation }) {
                 <Animatable.View animation="tada" useNativeDriver={true}>
                   <IconsFA
                     style={styles.modalIcon}
-                    size={30}
+                    size={45}
                     color={colors.textWhite}
                     name="remove"
                   />

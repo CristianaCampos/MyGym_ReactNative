@@ -451,18 +451,6 @@ export default function AppNavigations() {
         switch (json.message) {
           case "success":
             showModalSucesso(true);
-            // Alert.alert(
-            //   "Erro",
-            //   "Registo eliminado.",
-            //   [
-            //     {
-            //       text: "OK",
-            //       style: "default",
-            //       // onPress: () => navigation.navigate("PlanosTreinoList"),
-            //     },
-            //   ],
-            //   { cancelable: true }
-            // );
             navigation.goBack();
             break;
           case "delete_failed":
@@ -551,34 +539,10 @@ export default function AppNavigations() {
         switch (json.message) {
           case "success":
             showModalSucesso(true);
-            // Alert.alert(
-            //   "Erro",
-            //   "Registo eliminado.",
-            //   [
-            //     {
-            //       text: "OK",
-            //       style: "default",
-            //       // onPress: () => navigation.navigate("PlanosTreinoList"),
-            //     },
-            //   ],
-            //   { cancelable: true }
-            // );
             navigation.goBack();
             break;
           case "delete_failed":
             showModalErro(true);
-            // Alert.alert(
-            //   "Erro",
-            //   "Não foi possível eliminar.",
-            //   [
-            //     {
-            //       text: "OK",
-            //       style: "default",
-            //       // onPress: () => navigation.navigate("PlanosTreinoList"),
-            //     },
-            //   ],
-            //   { cancelable: true }
-            // );
             break;
           case "is_last_result":
             showModalUltimoRegisto(true);
@@ -668,7 +632,7 @@ export default function AppNavigations() {
               <Animatable.View animation="tada" useNativeDriver={true}>
                 <IconsFA
                   style={styles.modalIcon}
-                  size={30}
+                  size={45}
                   color="white"
                   name="check"
                 />
@@ -717,7 +681,7 @@ export default function AppNavigations() {
               <Animatable.View animation="tada" useNativeDriver={true}>
                 <IconsFA
                   style={styles.modalIcon}
-                  size={30}
+                  size={45}
                   color="white"
                   name="remove"
                 />
@@ -764,7 +728,7 @@ export default function AppNavigations() {
               <Animatable.View animation="tada" useNativeDriver={true}>
                 <IconsFA
                   style={styles.modalIcon}
-                  size={30}
+                  size={45}
                   color="white"
                   name="warning"
                 />
@@ -811,7 +775,7 @@ export default function AppNavigations() {
               <Animatable.View animation="tada" useNativeDriver={true}>
                 <IconsFA
                   style={styles.modalIcon}
-                  size={30}
+                  size={45}
                   color="white"
                   name="warning"
                 />
@@ -877,7 +841,7 @@ export default function AppNavigations() {
               <Animatable.View animation="tada" useNativeDriver={true}>
                 <IconsFA
                   style={styles.modalIcon}
-                  size={30}
+                  size={45}
                   color="white"
                   name="warning"
                 />
@@ -944,7 +908,7 @@ export default function AppNavigations() {
               <Animatable.View animation="tada" useNativeDriver={true}>
                 <IconsFA
                   style={styles.modalIcon}
-                  size={30}
+                  size={45}
                   color="white"
                   name="warning"
                 />

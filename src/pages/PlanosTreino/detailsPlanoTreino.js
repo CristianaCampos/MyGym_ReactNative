@@ -44,9 +44,11 @@ export default function DetailsPlanoTreino({ route, navigation }) {
   const [diaSemana, setDiaSemana] = useState("");
   const [exercicio1, setExercicio1] = useState("");
   const [exercicio2, setExercicio2] = useState("");
+  const [exercicio3, setExercicio3] = useState("");
 
   const [exercicioId1, setExercicioId1] = useState("");
   const [exercicioId2, setExercicioId2] = useState("");
+  const [exercicioId3, setExercicioId3] = useState("");
 
   const [editable, setEditable] = useState(false);
   const [inputStyle, setInputStyle] = useState(styles.inputGrey);
@@ -115,6 +117,13 @@ export default function DetailsPlanoTreino({ route, navigation }) {
             defaultValue={exercicio2}
             onChangeText={(txt) => setExercicio2(txt)}
           ></TextInput>
+          <TextInput
+            placeholder="Exercício"
+            editable={editable}
+            style={inputStyle}
+            defaultValue={exercicio3}
+            onChangeText={(txt) => setExercicio3(txt)}
+          ></TextInput>
         </View>
       );
     } else {
@@ -174,6 +183,21 @@ export default function DetailsPlanoTreino({ route, navigation }) {
           >
             {myExercicios}
           </Picker>
+          <Picker
+            itemStyle={{
+              color: "black",
+              fontFamily: "Poppins_Regular",
+              fontSize: 15,
+              height: 100,
+              borderRadius: 7,
+              marginTop: 0,
+            }}
+            mode="dropdown"
+            selectedValue={exercicio3}
+            onValueChange={(value, index) => getIdExercicios(value, 3)}
+          >
+            {myExercicios}
+          </Picker>
         </View>
       );
     }
@@ -210,6 +234,9 @@ export default function DetailsPlanoTreino({ route, navigation }) {
           } else if (indice == 2) {
             setExercicio2(value);
             setExercicioId2(json.id);
+          } else if (indice == 3) {
+            setExercicio3(value);
+            setExercicioId3(json.id);
           }
         }
       })
@@ -234,6 +261,7 @@ export default function DetailsPlanoTreino({ route, navigation }) {
         if (json.message == "success") {
           if (indice == 1) setExercicio1(json.nome);
           else if (indice == 2) setExercicio2(json.nome);
+          else if (indice == 3) setExercicio3(json.nome);
         }
       })
       .catch((error) => {
@@ -259,12 +287,18 @@ export default function DetailsPlanoTreino({ route, navigation }) {
     getNomeExercicios(plano.idEx2, 2);
   }
 
+  function getExercicio3() {
+    setExercicioId3(plano.idEx3);
+    getNomeExercicios(plano.idEx3, 3);
+  }
+
   function getData() {
     desativarVisible();
     getNome();
     getDiaSemana();
     getExercicio1();
     getExercicio2();
+    getExercicio3();
   }
 
   function edit() {
@@ -280,6 +314,7 @@ export default function DetailsPlanoTreino({ route, navigation }) {
         diaSemana: diaSemana,
         exercicio1: exercicioId1,
         exercicio2: exercicioId2,
+        exercicio3: exercicioId3,
         idUtilizador: user.id,
       }),
     })
@@ -288,13 +323,6 @@ export default function DetailsPlanoTreino({ route, navigation }) {
         if (json.message == "success") {
           desativarVisible();
           showModalSucesso(true);
-          // Alert.alert(
-          //   "Sucesso",
-          //   "Plano atualizado com sucesso!",
-          //   [{ text: "OK", style: "default" }],
-          //   { cancelable: true }
-          // );
-          // navigation.goBack();
         }
       })
       .catch((error) => {
@@ -303,7 +331,6 @@ export default function DetailsPlanoTreino({ route, navigation }) {
   }
 
   useEffect(() => {
-    //TODO: TEST REMOVE THIS LATER
     BackHandler.addEventListener("hardwareBackPress", () => true);
     return () =>
       BackHandler.removeEventListener("hardwareBackPress", () => true);
@@ -369,7 +396,7 @@ export default function DetailsPlanoTreino({ route, navigation }) {
                     <Animatable.View animation="tada" useNativeDriver={true}>
                       <IconsFA
                         style={styles.modalIcon}
-                        size={30}
+                        size={45}
                         color={colors.textWhite}
                         name="check"
                       />
