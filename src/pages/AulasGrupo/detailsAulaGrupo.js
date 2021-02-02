@@ -165,12 +165,6 @@ export default function DetailsAulaGrupo({ route, navigation }) {
           if (json.message === "success") {
             desativarVisible();
             showModalSucesso(true);
-            // Alert.alert(
-            //   "Sucesso",
-            //   "Aula atualizada com sucesso!",
-            //   [{ text: "OK", style: "default" }],
-            //   { cancelable: true }
-            // );
             // navigation.goBack();
           }
         })
@@ -179,12 +173,6 @@ export default function DetailsAulaGrupo({ route, navigation }) {
         });
     } else {
       showModalErro(true);
-      // Alert.alert(
-      //   "Erro",
-      //   "Preencha todos os campos!",
-      //   [{ text: "OK", style: "destructive" }],
-      //   { cancelable: true }
-      // );
     }
   }
 

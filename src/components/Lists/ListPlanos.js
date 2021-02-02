@@ -20,6 +20,8 @@ export default (props) => {
     props.navigation.navigate("PlanoTreinoDetails", {
       plano: props.plano,
       exercicios: props.exercicios,
+      aulas: props.aulas,
+      user: props.user,
     });
   }
   return (

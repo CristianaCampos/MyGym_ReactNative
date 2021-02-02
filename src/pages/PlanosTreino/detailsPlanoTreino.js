@@ -27,28 +27,17 @@ export default function DetailsPlanoTreino({ route, navigation }) {
   const uriEdit =
     "http://" + database.ip + ":" + database.port + "/php/editPlano.php";
 
-  const uriNomeExercicios =
-    "http://" +
-    database.ip +
-    ":" +
-    database.port +
-    "/php/getNomeExercicios.php";
-
-  const uriIdExercicios =
-    "http://" + database.ip + ":" + database.port + "/php/getIdExercicios.php";
-
-  const { plano, exercicios } = route.params;
-  const [user, setUser] = useState([]);
+  const { user, plano, exercicios, aulas } = route.params;
 
   const [nome, setNome] = useState("");
   const [diaSemana, setDiaSemana] = useState("");
+
   const [exercicio1, setExercicio1] = useState("");
   const [exercicio2, setExercicio2] = useState("");
   const [exercicio3, setExercicio3] = useState("");
 
-  const [exercicioId1, setExercicioId1] = useState("");
-  const [exercicioId2, setExercicioId2] = useState("");
-  const [exercicioId3, setExercicioId3] = useState("");
+  const [aula1, setAula1] = useState("");
+  const [aula2, setAula2] = useState("");
 
   const [editable, setEditable] = useState(false);
   const [inputStyle, setInputStyle] = useState(styles.inputGrey);
@@ -59,6 +48,58 @@ export default function DetailsPlanoTreino({ route, navigation }) {
   const hideModalSucesso = () => {
     setModalSucesso(false);
   };
+
+  function loadPlanoInfo() {
+    setNome(plano.nome);
+    setDiaSemana(plano.diaSemana);
+    setExercicio1(plano.exercicio1);
+    setExercicio2(plano.exercicio2);
+    setExercicio3(plano.exercicio3);
+    setAula1(plano.aula1);
+    setAula2(plano.aula2);
+  }
+
+  function ativarVisible() {
+    setEditable(true);
+    setInputStyle(styles.input);
+  }
+
+  function desativarVisible() {
+    setEditable(false);
+    setInputStyle(styles.inputGrey);
+  }
+
+  function edit() {
+    if (nome != "" && diaSemana != "---" && exercicio1 != "---")
+      fetch(uriEdit, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: plano.id,
+          nome: nome,
+          diaSemana: diaSemana,
+          exercicio1: exercicio1,
+          exercicio2: exercicio2,
+          exercicio3: exercicio3,
+          aula1: aula1,
+          aula2: aula2,
+          idUtilizador: user.id,
+        }),
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          if (json.message == "success") {
+            desativarVisible();
+            showModalSucesso(true);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+  }
 
   function seeButtonAtualizar() {
     if (editable) {
@@ -99,8 +140,8 @@ export default function DetailsPlanoTreino({ route, navigation }) {
             placeholder="Dia da Semana"
             editable={editable}
             style={inputStyle}
-            defaultValue={diaSemana}
-            onChangeText={(txt) => setDiaSemana(txt)}
+            value={diaSemana}
+            onChangeText={(diaSemana) => setDiaSemana(diaSemana)}
           ></TextInput>
           <Text style={styles.textExercicios}>Exercícios</Text>
           <TextInput
@@ -108,21 +149,31 @@ export default function DetailsPlanoTreino({ route, navigation }) {
             editable={editable}
             style={inputStyle}
             defaultValue={exercicio1}
-            onChangeText={(txt) => setExercicio1(txt)}
           ></TextInput>
           <TextInput
             placeholder="Exercício"
             editable={editable}
             style={inputStyle}
             defaultValue={exercicio2}
-            onChangeText={(txt) => setExercicio2(txt)}
           ></TextInput>
           <TextInput
             placeholder="Exercício"
             editable={editable}
             style={inputStyle}
             defaultValue={exercicio3}
-            onChangeText={(txt) => setExercicio3(txt)}
+          ></TextInput>
+          <Text style={styles.textExercicios}>Aulas de Grupo</Text>
+          <TextInput
+            placeholder="Aula de Grupo"
+            editable={editable}
+            style={inputStyle}
+            value={aula1}
+          ></TextInput>
+          <TextInput
+            placeholder="Aula de Grupo"
+            editable={editable}
+            style={inputStyle}
+            defaultValue={aula2}
           ></TextInput>
         </View>
       );
@@ -164,8 +215,9 @@ export default function DetailsPlanoTreino({ route, navigation }) {
             }}
             mode="dropdown"
             selectedValue={exercicio1}
-            onValueChange={(value, index) => getIdExercicios(value, 1)}
+            onValueChange={(value, index) => setExercicio1(value)}
           >
+            <Picker.Item label={"---"} value={0} key={0} />
             {myExercicios}
           </Picker>
           <Picker
@@ -179,8 +231,9 @@ export default function DetailsPlanoTreino({ route, navigation }) {
             }}
             mode="dropdown"
             selectedValue={exercicio2}
-            onValueChange={(value, index) => getIdExercicios(value, 2)}
+            onValueChange={(value, index) => setExercicio2(value)}
           >
+            <Picker.Item label={"---"} value={0} key={0} />
             {myExercicios}
           </Picker>
           <Picker
@@ -194,140 +247,47 @@ export default function DetailsPlanoTreino({ route, navigation }) {
             }}
             mode="dropdown"
             selectedValue={exercicio3}
-            onValueChange={(value, index) => getIdExercicios(value, 3)}
+            onValueChange={(value, index) => setExercicio3(value)}
           >
+            <Picker.Item label={"---"} value={0} key={0} />
             {myExercicios}
+          </Picker>
+          <Text style={styles.textExercicios}>Aulas de Grupo</Text>
+          <Picker
+            itemStyle={{
+              color: "black",
+              fontFamily: "Poppins_Regular",
+              fontSize: 15,
+              height: 100,
+              borderRadius: 7,
+              marginTop: 0,
+            }}
+            mode="dropdown"
+            selectedValue={aula1}
+            onValueChange={(value, index) => setAula1(value)}
+          >
+            <Picker.Item label={"---"} value={"---"} key={0} />
+            {myAulas}
+          </Picker>
+          <Picker
+            itemStyle={{
+              color: "black",
+              fontFamily: "Poppins_Regular",
+              fontSize: 15,
+              height: 100,
+              borderRadius: 7,
+              marginTop: 0,
+            }}
+            mode="dropdown"
+            selectedValue={aula2}
+            onValueChange={(value, index) => setAula2(value)}
+          >
+            <Picker.Item label={"---"} value={"---"} key={0} />
+            {myAulas}
           </Picker>
         </View>
       );
     }
-  }
-
-  function ativarVisible() {
-    setEditable(true);
-    setInputStyle(styles.input);
-  }
-
-  function desativarVisible() {
-    setEditable(false);
-    setInputStyle(styles.inputGrey);
-  }
-
-  function getIdExercicios(value, indice) {
-    fetch(uriIdExercicios, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        exercicioNome: value,
-        userId: user.id,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.message == "success") {
-          if (indice == 1) {
-            setExercicio1(value);
-            setExercicioId1(json.id);
-          } else if (indice == 2) {
-            setExercicio2(value);
-            setExercicioId2(json.id);
-          } else if (indice == 3) {
-            setExercicio3(value);
-            setExercicioId3(json.id);
-          }
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-
-  function getNomeExercicios(exercicio, indice) {
-    fetch(uriNomeExercicios, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        exercicioId: exercicio,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.message == "success") {
-          if (indice == 1) setExercicio1(json.nome);
-          else if (indice == 2) setExercicio2(json.nome);
-          else if (indice == 3) setExercicio3(json.nome);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-
-  function getNome() {
-    setNome(plano.nome);
-  }
-
-  function getDiaSemana() {
-    setDiaSemana(plano.diaSemana);
-  }
-
-  function getExercicio1() {
-    setExercicioId1(plano.idEx1);
-    getNomeExercicios(plano.idEx1, 1);
-  }
-
-  function getExercicio2() {
-    setExercicioId2(plano.idEx2);
-    getNomeExercicios(plano.idEx2, 2);
-  }
-
-  function getExercicio3() {
-    setExercicioId3(plano.idEx3);
-    getNomeExercicios(plano.idEx3, 3);
-  }
-
-  function getData() {
-    desativarVisible();
-    getNome();
-    getDiaSemana();
-    getExercicio1();
-    getExercicio2();
-    getExercicio3();
-  }
-
-  function edit() {
-    fetch(uriEdit, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: plano.id,
-        nome: nome,
-        diaSemana: diaSemana,
-        exercicio1: exercicioId1,
-        exercicio2: exercicioId2,
-        exercicio3: exercicioId3,
-        idUtilizador: user.id,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.message == "success") {
-          desativarVisible();
-          showModalSucesso(true);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
   }
 
   useEffect(() => {
@@ -337,34 +297,29 @@ export default function DetailsPlanoTreino({ route, navigation }) {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", (e) => {
-      async function getUser() {
-        try {
-          let value = await AsyncStorage.getItem(storage.user);
-          value = JSON.parse(value);
-
-          if (value != null) {
-            setUser(value);
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      }
-
-      getUser().then();
-    });
-    return unsubscribe;
-  }, [navigation]);
-
-  useEffect(() => {
     if (user) {
-      getData();
+      desativarVisible();
+      loadPlanoInfo();
     }
   }, [user]);
 
   let myExercicios = exercicios.map((myValue, myIndex) => {
     return (
-      <Picker.Item label={myValue.nome} value={myValue.nome} key={myIndex} />
+      <Picker.Item
+        label={myValue.nome}
+        value={myValue.nome}
+        key={myIndex + 1}
+      />
+    );
+  });
+
+  let myAulas = aulas.map((myValue, myIndex) => {
+    return (
+      <Picker.Item
+        label={myValue.nome}
+        value={myValue.nome}
+        key={myIndex + 1}
+      />
     );
   });
 
@@ -437,8 +392,7 @@ export default function DetailsPlanoTreino({ route, navigation }) {
               placeholder="Nome Plano Treino"
               editable={editable}
               style={inputStyle}
-              defaultValue={nome}
-              onChangeText={(txt) => setNome(txt)}
+              value={nome}
             ></TextInput>
             {seeForm()}
             {seeButtonAtualizar()}

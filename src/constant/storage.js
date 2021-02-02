@@ -6,4 +6,5 @@ export const storage = {
   aula: "aula",
   dadosCorporais: "dadosCorporais",
   exercicios: "exercicios",
+  aulas: "aulas",
 };

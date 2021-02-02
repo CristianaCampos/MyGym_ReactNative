@@ -45,16 +45,26 @@ export default function Login({ navigation }) {
     setModalDadosDesconhecidos(false);
   };
 
-  const saveUserSettings = async (userId, user, dadosCorporais, exercicios) => {
+  const saveUserSettings = async (
+    userId,
+    user,
+    dadosCorporais,
+    exercicios,
+    aulas
+  ) => {
     try {
       const value = JSON.stringify(userId);
       const value2 = JSON.stringify(user);
+
       const value3 = JSON.stringify(dadosCorporais);
       const value4 = JSON.stringify(exercicios);
+      const value5 = JSON.stringify(aulas);
+
       await AsyncStorage.setItem("user_id", value);
       await AsyncStorage.setItem(storage.user, value2);
       await AsyncStorage.setItem(storage.dadosCorporais, value3);
       await AsyncStorage.setItem(storage.exercicios, value4);
+      await AsyncStorage.setItem(storage.aulas, value5);
     } catch (error) {
       console.log(error);
     }
@@ -80,9 +90,10 @@ export default function Login({ navigation }) {
               json.user_id,
               json.user,
               json.dadosCorporais,
-              json.exercises
+              json.exercises,
+              json.aulas
             );
-            navigation.navigate("Main");
+            navigation.navigate("Main", { nome: json.user.nome });
           } else if (json.message === "login_failed")
             showModalDadosDesconhecidos(true);
         })

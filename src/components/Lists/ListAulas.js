@@ -19,6 +19,7 @@ export default (props) => {
     saveAula();
     props.navigation.navigate("AulaGrupoDetails", {
       aula: props.aula,
+      user: props.user,
     });
   }
   return (

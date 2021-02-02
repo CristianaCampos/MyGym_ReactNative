@@ -183,14 +183,17 @@ function Tabs() {
 }
 
 export default function AppNavigations() {
-  const [username, setUsername] = useState("");
+  // const [username, setUsername] = useState("");
   const [userId, setUserId] = useState("");
-  const [user, setUser] = useState("");
   const [newNavigation, setNewNavigation] = useState("");
 
-  const [plano, setPlano] = useState("");
-  const [exercicio, setExercicio] = useState("");
-  const [aula, setAula] = useState("");
+  const [planoId, setPlanoId] = useState("");
+  const [exercicioId, setExercicioId] = useState("");
+  const [aulaId, setAulaId] = useState("");
+
+  // const [plano, setPlano] = useState("");
+  // const [exercicio, setExercicio] = useState("");
+  // const [aula, setAula] = useState("");
 
   const [modalErro, setModalErro] = useState(false);
   const [modalSucesso, setModalSucesso] = useState(false);
@@ -250,91 +253,14 @@ export default function AppNavigations() {
     }
   }
 
-  useEffect(() => {
-    async function getPlano() {
-      try {
-        let id = await AsyncStorage.getItem(storage.plano);
-        id = JSON.parse(id);
-
-        if (id != null) {
-          setPlano(id);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    getPlano().then();
-  }, []);
-
-  useEffect(() => {
-    async function getExercicio() {
-      try {
-        let id = await AsyncStorage.getItem(storage.exercicio);
-        id = JSON.parse(id);
-
-        if (id != null) {
-          setExercicio(id);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    getExercicio().then();
-  }, []);
-
-  useEffect(() => {
-    async function getAula() {
-      try {
-        let id = await AsyncStorage.getItem(storage.aula);
-        id = JSON.parse(id);
-
-        if (id != null) {
-          setAula(id);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    getAula().then();
-  }, []);
-
-  const alertPlano = (navigation) => {
+  const alertPlano = (navigation, planoId, userId) => {
     setNewNavigation(navigation);
+    setPlanoId(planoId);
+    setUserId(userId);
     showModalEliminarPlano(true);
   };
-  // Alert.alert(
-  //   "Eliminar Plano Treino",
-  //   "Tem a certeza?",
-  //   [
-  //     {
-  //       text: "Sim",
-  //       onPress: () => deletePlano(navigation),
-  //     },
-  //     { text: "Não", style: "destructive" },
-  //   ],
-  //   { cancelable: false }
-  // );
 
-  async function deletePlano(navigation) {
-    let planoNovo = "";
-
-    try {
-      let id = await AsyncStorage.getItem(storage.plano);
-      id = JSON.parse(id);
-
-      if (id != null) {
-        planoNovo = id;
-      }
-    } catch (error) {
-      console.log(error);
-    }
-
-    // console.log(user);
-    // console.log("----------");
-    // console.log(planoNovo);
+  function deletePlano(navigation) {
     fetch(uriDeletePlano, {
       method: "POST",
       headers: {
@@ -342,8 +268,8 @@ export default function AppNavigations() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        id: planoNovo.id,
-        userId: user.id,
+        id: planoId,
+        userId: userId,
       }),
     })
       .then((response) => response.json())
@@ -351,49 +277,13 @@ export default function AppNavigations() {
         switch (json.message) {
           case "success":
             showModalSucesso(true);
-            // Alert.alert(
-            //   "Sucesso",
-            //   "Registo eliminado.",
-            //   [
-            //     {
-            //       text: "OK",
-            //       style: "default",
-            //       // onPress: () => navigation.navigate("PlanosTreinoList"),
-            //     },
-            //   ],
-            //   { cancelable: true }
-            // );
             navigation.goBack();
             break;
           case "delete_failed":
             showModalErro(true);
-            // Alert.alert(
-            //   "Erro",
-            //   "Não foi possível eliminar.",
-            //   [
-            //     {
-            //       text: "OK",
-            //       style: "default",
-            //       // onPress: () => navigation.navigate("PlanosTreinoList"),
-            //     },
-            //   ],
-            //   { cancelable: true }
-            // );
             break;
           case "is_last_result":
             showModalUltimoRegisto(true);
-            // Alert.alert(
-            //   "Erro",
-            //   "Não pode eliminar o último plano. Prefira editá-lo.",
-            //   [
-            //     {
-            //       text: "OK",
-            //       style: "default",
-            //       // onPress: () => navigation.navigate("PlanosTreinoList"),
-            //     },
-            //   ],
-            //   { cancelable: true }
-            // );
             break;
         }
       })
@@ -402,39 +292,14 @@ export default function AppNavigations() {
       });
   }
 
-  const alertExercicio = (navigation) => {
+  const alertExercicio = (navigation, exercicioId) => {
     setNewNavigation(navigation);
+    setExercicioId(exercicioId);
+    setUserId(userId);
     showModalEliminarExercicio(true);
   };
-  // Alert.alert(
-  //   "Eliminar Exercício",
-  //   "Tem a certeza?",
-  //   [
-  //     {
-  //       text: "Sim",
-  //       onPress: () => deleteExercicio(navigation),
-  //     },
-  //     { text: "Não", style: "destructive" },
-  //   ],
-  //   { cancelable: false }
-  // );
 
   async function deleteExercicio(navigation) {
-    let exercicioNovo = "";
-
-    try {
-      let id = await AsyncStorage.getItem(storage.exercicio);
-      id = JSON.parse(id);
-
-      if (id != null) {
-        exercicioNovo = id;
-      }
-    } catch (error) {
-      console.log(error);
-    }
-
-    // getUser();
-    // getExercicio();
     fetch(uriDeleteExercicio, {
       method: "POST",
       headers: {
@@ -442,96 +307,8 @@ export default function AppNavigations() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        id: exercicioNovo.id,
-        userId: user.id,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        switch (json.message) {
-          case "success":
-            showModalSucesso(true);
-            navigation.goBack();
-            break;
-          case "delete_failed":
-            showModalErro(true);
-            // Alert.alert(
-            //   "Erro",
-            //   "Não foi possível eliminar.",
-            //   [
-            //     {
-            //       text: "OK",
-            //       style: "default",
-            //       // onPress: () => navigation.navigate("PlanosTreinoList"),
-            //     },
-            //   ],
-            //   { cancelable: true }
-            // );
-            break;
-          case "is_last_result":
-            showModalUltimoRegisto(true); //liga o carregador please, tá impossivel too laggy
-            // Alert.alert(
-            //   "Erro",
-            //   "Não pode eliminar o último exercício. Prefira editá-lo.",
-            //   [
-            //     {
-            //       text: "OK",
-            //       style: "default",
-            //       // onPress: () => navigation.navigate("PlanosTreinoList"),
-            //     },
-            //   ],
-            //   { cancelable: true }
-            // );
-            break;
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-
-  const alertAula = (navigation) => {
-    setNewNavigation(navigation);
-    showModalEliminarAula(true);
-  };
-  // Alert.alert(
-  //   "Eliminar Aula Grupo",
-  //   "Tem a certeza?",
-  //   [
-  //     {
-  //       text: "Sim",
-  //       onPress: () => deleteAula(navigation),
-  //     },
-  //     { text: "Não", style: "destructive" },
-  //   ],
-  //   { cancelable: false }
-  // );
-
-  async function deleteAula(navigation) {
-    let aulaNovo = "";
-
-    try {
-      let id = await AsyncStorage.getItem(storage.aula);
-      id = JSON.parse(id);
-
-      if (id != null) {
-        aulaNovo = id;
-      }
-    } catch (error) {
-      console.log(error);
-    }
-
-    // getUser();
-    // getAula();
-    fetch(uriDeleteAula, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: aulaNovo.id,
-        userId: user.id,
+        id: exercicioId,
+        userId: userId,
       }),
     })
       .then((response) => response.json())
@@ -546,18 +323,6 @@ export default function AppNavigations() {
             break;
           case "is_last_result":
             showModalUltimoRegisto(true);
-            // Alert.alert(
-            //   "Erro",
-            //   "Não pode eliminar a última aula. Prefira editá-la.",
-            //   [
-            //     {
-            //       text: "OK",
-            //       style: "default",
-            //       // onPress: () => navigation.navigate("PlanosTreinoList"),
-            //     },
-            //   ],
-            //   { cancelable: true }
-            // );
             break;
         }
       })
@@ -566,38 +331,38 @@ export default function AppNavigations() {
       });
   }
 
-  useEffect(() => {
-    async function getUser() {
-      try {
-        let value = await AsyncStorage.getItem(storage.user);
-        value = JSON.parse(value);
+  const alertAula = (navigation, aulaId) => {
+    setNewNavigation(navigation);
+    setAulaId(aulaId);
+    setUserId(userId);
+    showModalEliminarAula(true);
+  };
 
-        if (value != null) {
-          setUser(value);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    getUser().then();
-  }, []);
-
-  function getUsername() {
-    fetch(uri, {
+  async function deleteAula(navigation) {
+    fetch(uriDeleteAula, {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId: JSON.stringify(user.id),
+        id: aulaId,
+        userId: userId,
       }),
     })
       .then((response) => response.json())
       .then((json) => {
-        if (json.message == "success") {
-          setUsername(json.user);
+        switch (json.message) {
+          case "success":
+            showModalSucesso(true);
+            navigation.goBack();
+            break;
+          case "delete_failed":
+            showModalErro(true);
+            break;
+          case "is_last_result":
+            showModalUltimoRegisto(true);
+            break;
         }
       })
       .catch((error) => {
@@ -605,10 +370,22 @@ export default function AppNavigations() {
       });
   }
 
-  function getHeaderTitle(route) {
-    getUsername();
-    return <Text style={styles.titleNome}>{username}</Text>;
-  }
+  // useEffect(() => {
+  //   async function getUser() {
+  //     try {
+  //       let value = await AsyncStorage.getItem(storage.user);
+  //       value = JSON.parse(value);
+
+  //       if (value != null) {
+  //         setUser(value);
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+
+  //   getUser().then();
+  // }, []);
 
   return (
     <Provider>
@@ -981,7 +758,11 @@ export default function AppNavigations() {
           name="Main"
           component={Tabs}
           options={({ route, navigation }) => ({
-            headerTitle: () => getHeaderTitle(route),
+            headerTitle: (
+              <Text style={{ fontFamily: "Poppins_Regular" }}>
+                {route.params.nome}
+              </Text>
+            ),
             headerLeft: () => (
               <Button
                 onPress={() => {
@@ -1011,7 +792,7 @@ export default function AppNavigations() {
           name="PlanoTreinoDetails"
           component={PlanoTreinoDetails}
           options={({ route, navigation }) => ({
-            headerTitle: () => getHeaderTitle(route),
+            headerTitle: "",
             headerLeft: () => (
               <Button
                 onPress={() => {
@@ -1022,7 +803,15 @@ export default function AppNavigations() {
               </Button>
             ),
             headerRight: () => (
-              <Button onPress={() => alertPlano(navigation)}>
+              <Button
+                onPress={() =>
+                  alertPlano(
+                    navigation,
+                    route.params.plano.id,
+                    route.params.user.id
+                  )
+                }
+              >
                 <IconsFA name="trash" size={30} color="#fff" />
               </Button>
             ),
@@ -1035,7 +824,7 @@ export default function AppNavigations() {
           name="ExercicioDetails"
           component={ExercicioDetails}
           options={({ route, navigation }) => ({
-            headerTitle: () => getHeaderTitle(route),
+            headerTitle: "",
             headerLeft: () => (
               <Button
                 onPress={() => {
@@ -1046,7 +835,15 @@ export default function AppNavigations() {
               </Button>
             ),
             headerRight: () => (
-              <Button onPress={() => alertExercicio(navigation)}>
+              <Button
+                onPress={() =>
+                  alertExercicio(
+                    navigation,
+                    route.params.exercicio.id,
+                    route.params.user.id
+                  )
+                }
+              >
                 <IconsFA name="trash" size={30} color="#fff" />
               </Button>
             ),
@@ -1059,7 +856,7 @@ export default function AppNavigations() {
           name="AulaGrupoDetails"
           component={AulaGrupoDetails}
           options={({ route, navigation }) => ({
-            headerTitle: () => getHeaderTitle(route),
+            headerTitle: "",
             headerLeft: () => (
               <Button
                 onPress={() => {
@@ -1070,7 +867,15 @@ export default function AppNavigations() {
               </Button>
             ),
             headerRight: () => (
-              <Button onPress={() => alertAula(navigation)}>
+              <Button
+                onPress={() =>
+                  alertAula(
+                    navigation,
+                    route.params.aula.id,
+                    route.params.user.id
+                  )
+                }
+              >
                 <IconsFA name="trash" size={30} color="#fff" />
               </Button>
             ),
@@ -1083,7 +888,7 @@ export default function AppNavigations() {
           name="AddPlanoTreino"
           component={AddPlanoTreino}
           options={({ route, navigation }) => ({
-            headerTitle: () => getHeaderTitle(route),
+            headerTitle: "",
             headerLeft: () => (
               <Button
                 onPress={() => {
@@ -1102,7 +907,7 @@ export default function AppNavigations() {
           name="AddExercicio"
           component={AddExercicio}
           options={({ route, navigation }) => ({
-            headerTitle: () => getHeaderTitle(route),
+            headerTitle: "",
             headerLeft: () => (
               <Button
                 onPress={() => {
@@ -1121,7 +926,7 @@ export default function AppNavigations() {
           name="AddAulaGrupo"
           component={AddAulaGrupo}
           options={({ route, navigation }) => ({
-            headerTitle: () => getHeaderTitle(route),
+            headerTitle: "",
             headerLeft: () => (
               <Button
                 onPress={() => {
@@ -1131,16 +936,6 @@ export default function AppNavigations() {
                 <IconsFA name="arrow-left" size={23} color="#fff" />
               </Button>
             ),
-            headerStyle: {
-              backgroundColor: "#B72727",
-            },
-          })}
-        />
-        <RootStack.Screen
-          name="DadosCorporais"
-          component={DadosCorporaisConfig}
-          options={({ route }) => ({
-            headerTitle: () => getHeaderTitle(route),
             headerStyle: {
               backgroundColor: "#B72727",
             },

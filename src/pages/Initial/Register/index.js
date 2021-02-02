@@ -74,20 +74,7 @@ export default function Register({ navigation }) {
         .then((json) => {
           if (json.message === "success") {
             showModalSucesso(true);
-            // Alert.alert(
-            //   "Sucesso",
-            //   "Conta criada com sucesso! Inicie sessão para entrar na sua conta.",
-            //   [
-            //     {
-            //       text: "OK",
-            //       style: "destructive",
-            //       onPress: () => navigation.navigate("Login"),
-            //     },
-            //   ],
-            //   { cancelable: true }
-            // );
           } else if (json.message === "user_already_exists") {
-            // alert("Utilizador já existente!");
             showModalExistente(true);
           }
         })
@@ -96,12 +83,6 @@ export default function Register({ navigation }) {
         });
     } else {
       showModalErro(true);
-      // Alert.alert(
-      //   "Erro",
-      //   "Preencha todos os campos!",
-      //   [{ text: "OK", style: "destructive" }],
-      //   { cancelable: true }
-      // );
     }
   }
 

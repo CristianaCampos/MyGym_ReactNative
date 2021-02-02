@@ -76,23 +76,26 @@ export default function aulaGrupoList({ navigation }) {
     <View style={styles.containerPadding}>
       <Text style={styles.pageTitle}>Aulas Grupo</Text>
       <StatusBar style="auto" />
-      <ScrollView>
-        <Animatable.View animation="fadeInUp" useNativeDriver={true}>
-          <FlatList
-            data={aulas}
-            keyExtractor={({ id }, index) => id}
-            renderItem={({ item }) => (
-              <ListAulas
-                id={item.id}
-                nome={item.nome}
-                diaSemana={item.diaSemana}
-                aula={item}
-                navigation={navigation}
-              />
-            )}
-          />
-        </Animatable.View>
-      </ScrollView>
+      <Animatable.View
+        style={{ marginBottom: 55 }}
+        animation="fadeInUp"
+        useNativeDriver={true}
+      >
+        <FlatList
+          data={aulas}
+          keyExtractor={({ id }, index) => id}
+          renderItem={({ item }) => (
+            <ListAulas
+              id={item.id}
+              nome={item.nome}
+              diaSemana={item.diaSemana}
+              aula={item}
+              user={user}
+              navigation={navigation}
+            />
+          )}
+        />
+      </Animatable.View>
       <FAB
         style={styles.fab}
         icon="plus"

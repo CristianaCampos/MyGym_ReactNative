@@ -14,9 +14,10 @@ export default function planoTreinoList({ navigation }) {
   const uri =
     "http://" + database.ip + ":" + database.port + "/php/getPlanos.php";
 
-  const [user, setUser] = useState([]);
+  const [user, setUser] = useState("");
   const [planos, setPlanos] = useState([]);
   const [exercicios, setExercicios] = useState([]);
+  const [aulas, setAulas] = useState([]);
 
   function loadPlanos() {
     fetch(uri, {
@@ -88,10 +89,30 @@ export default function planoTreinoList({ navigation }) {
   }, [navigation]);
 
   useEffect(() => {
-    if (user && exercicios) {
+    const unsubscribe = navigation.addListener("focus", () => {
+      async function getAulas() {
+        try {
+          let id = await AsyncStorage.getItem(storage.aulas);
+          id = JSON.parse(id);
+
+          if (id != null) {
+            setAulas(id);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      getAulas().then();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    if (user && exercicios && aulas) {
       loadPlanos();
     }
-  }, [user, exercicios]);
+  }, [user, exercicios, aulas]);
 
   return (
     <View style={{ backgroundColor: "white", height: "100%" }}>
@@ -109,6 +130,8 @@ export default function planoTreinoList({ navigation }) {
                 diaSemana={item.diaSemana}
                 plano={item}
                 exercicios={exercicios}
+                aulas={aulas}
+                user={user}
                 navigation={navigation}
               />
             )}
@@ -117,7 +140,13 @@ export default function planoTreinoList({ navigation }) {
         <FAB
           style={styles.fab}
           icon="plus"
-          onPress={() => navigation.navigate("AddPlanoTreino", { id: user.id })}
+          onPress={() =>
+            navigation.navigate("AddPlanoTreino", {
+              user: user,
+              exercicios: exercicios,
+              aulas: aulas,
+            })
+          }
         />
       </View>
     </View>

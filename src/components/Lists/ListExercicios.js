@@ -19,6 +19,7 @@ export default (props) => {
     saveExercise();
     props.navigation.navigate("ExercicioDetails", {
       exercicio: props.exercicio,
+      user: props.user,
     });
   }
   return (

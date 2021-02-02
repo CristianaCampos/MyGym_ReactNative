@@ -77,7 +77,11 @@ export default function exercicioList({ navigation }) {
     <View style={styles.containerPadding}>
       <Text style={styles.pageTitle}>Exercícios</Text>
       <StatusBar style="auto" />
-      <Animatable.View animation="fadeInUp" useNativeDriver={true}>
+      <Animatable.View
+        style={{ marginBottom: 55 }}
+        animation="fadeInUp"
+        useNativeDriver={true}
+      >
         <FlatList
           data={exercises}
           keyExtractor={({ id }, index) => id}
@@ -87,6 +91,7 @@ export default function exercicioList({ navigation }) {
               nome={item.nome}
               zonaMuscular={item.zonaMuscular}
               exercicio={item}
+              user={user}
               navigation={navigation}
             />
           )}

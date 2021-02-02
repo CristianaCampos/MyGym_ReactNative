@@ -22,13 +22,6 @@ import { styles } from "../../constant/styles";
 import { colors } from "../../constant/colors";
 
 export default function AddPlanoTreino({ route, navigation }) {
-  const uri =
-    "http://" +
-    database.ip +
-    ":" +
-    database.port +
-    "/php/getExerciciosPlanos.php";
-
   const uriAdd =
     "http://" +
     database.ip +
@@ -36,24 +29,20 @@ export default function AddPlanoTreino({ route, navigation }) {
     database.port +
     "/php/insertPlanoTreino.php";
 
-  const uriIdExercicios =
-    "http://" + database.ip + ":" + database.port + "/php/getIdExercicios.php";
-
-  const [exercicios, setExercicios] = useState([]);
   const [nome, setNome] = useState("");
   const [diaSemana, setDiaSemana] = useState("---");
+
   const [exercicio1, setExercicio1] = useState("---");
   const [exercicio2, setExercicio2] = useState("---");
   const [exercicio3, setExercicio3] = useState("---");
 
-  const [exercicioId1, setExercicioId1] = useState("---");
-  const [exercicioId2, setExercicioId2] = useState("---");
-  const [exercicioId3, setExercicioId3] = useState("---");
-
-  const [user, setUser] = useState([]);
+  const [aula1, setAula1] = useState("---");
+  const [aula2, setAula2] = useState("---");
 
   const [modalErro, setModalErro] = useState(false);
   const [modalSucesso, setModalSucesso] = useState(false);
+
+  const { user, exercicios, aulas } = route.params;
 
   const showModalErro = () => setModalErro(true);
   const hideModalErro = () => {
@@ -65,62 +54,8 @@ export default function AddPlanoTreino({ route, navigation }) {
     setModalSucesso(false);
   };
 
-  function loadExercicios() {
-    fetch(uri, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: user.id,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.message == "success") {
-          setExercicios(json.exercises);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-
-  function getIdExercicios(value, indice) {
-    fetch(uriIdExercicios, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        exercicioNome: value,
-        userId: user.id,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.message == "success") {
-          if (indice == 1) {
-            setExercicio1(value);
-            setExercicioId1(json.id);
-          } else if (indice == 2) {
-            setExercicio2(value);
-            setExercicioId2(json.id);
-          } else if (indice == 3) {
-            setExercicio3(value);
-            setExercicioId3(json.id);
-          }
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-
   function add() {
-    if (nome != "" && diaSemana != "---") {
+    if (nome != "" && diaSemana != "---" && exercicio1 != "---") {
       fetch(uriAdd, {
         method: "POST",
         headers: {
@@ -131,17 +66,17 @@ export default function AddPlanoTreino({ route, navigation }) {
           userId: user.id,
           nome: nome,
           diaSemana: diaSemana,
-          idEx1: exercicioId1,
-          idEx2: exercicioId2,
-          idEx3: exercicioId3,
+          exercicio1: exercicio1,
+          exercicio2: exercicio2,
+          exercicio3: exercicio3,
+          aula1: aula1,
+          aula2: aula2,
         }),
       })
         .then((response) => response.json())
         .then((json) => {
           if (json.message == "success") {
             showModalSucesso(true);
-          } else {
-            console.log("Erro");
           }
         })
         .catch((error) => {
@@ -158,35 +93,23 @@ export default function AddPlanoTreino({ route, navigation }) {
       BackHandler.removeEventListener("hardwareBackPress", () => true);
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", (e) => {
-      async function getUser() {
-        try {
-          let value = await AsyncStorage.getItem(storage.user);
-          value = JSON.parse(value);
-
-          if (value != null) {
-            setUser(value);
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      }
-
-      getUser().then();
-    });
-    return unsubscribe;
-  }, [navigation]);
-
-  useEffect(() => {
-    if (user) {
-      loadExercicios();
-    }
-  }, [user]);
-
   let myExercicios = exercicios.map((myValue, myIndex) => {
     return (
-      <Picker.Item label={myValue.nome} value={myValue.nome} key={myIndex} />
+      <Picker.Item
+        label={myValue.nome}
+        value={myValue.nome}
+        key={myIndex + 1}
+      />
+    );
+  });
+
+  let myAulas = aulas.map((myValue, myIndex) => {
+    return (
+      <Picker.Item
+        label={myValue.nome}
+        value={myValue.nome}
+        key={myIndex + 1}
+      />
     );
   });
 
@@ -342,8 +265,9 @@ export default function AddPlanoTreino({ route, navigation }) {
               }}
               mode="dropdown"
               selectedValue={exercicio1}
-              onValueChange={(value, index) => getIdExercicios(value, 1)}
+              onValueChange={(value, index) => setExercicio1(value)}
             >
+              <Picker.Item label={"---"} value={0} key={0} />
               {myExercicios}
             </Picker>
             <Picker
@@ -357,8 +281,9 @@ export default function AddPlanoTreino({ route, navigation }) {
               }}
               mode="dropdown"
               selectedValue={exercicio2}
-              onValueChange={(value, index) => getIdExercicios(value, 2)}
+              onValueChange={(value, index) => setExercicio2(value)}
             >
+              <Picker.Item label={"---"} value={0} key={0} />
               {myExercicios}
             </Picker>
             <Picker
@@ -372,9 +297,43 @@ export default function AddPlanoTreino({ route, navigation }) {
               }}
               mode="dropdown"
               selectedValue={exercicio3}
-              onValueChange={(value, index) => getIdExercicios(value, 3)}
+              onValueChange={(value, index) => setExercicio3(value)}
             >
+              <Picker.Item label={"---"} value={0} key={0} />
               {myExercicios}
+            </Picker>
+            <Text style={styles.textExercicios}>Aulas de Grupo</Text>
+            <Picker
+              itemStyle={{
+                color: "black",
+                fontFamily: "Poppins_Regular",
+                fontSize: 15,
+                height: 100,
+                borderRadius: 7,
+                marginTop: 0,
+              }}
+              mode="dropdown"
+              selectedValue={aula1}
+              onValueChange={(value, index) => setAula1(value)}
+            >
+              <Picker.Item label={"---"} value={0} key={0} />
+              {myAulas}
+            </Picker>
+            <Picker
+              itemStyle={{
+                color: "black",
+                fontFamily: "Poppins_Regular",
+                fontSize: 15,
+                height: 100,
+                borderRadius: 7,
+                marginTop: 0,
+              }}
+              mode="dropdown"
+              selectedValue={aula2}
+              onValueChange={(value, index) => setAula2(value)}
+            >
+              <Picker.Item label={"---"} value={"---"} key={0} />
+              {myAulas}
             </Picker>
             <Button
               mode="contained"
