@@ -32,7 +32,11 @@ import { colors } from "../../constant/colors";
 
 export default function DetailsAulaGrupo({ route, navigation }) {
   const uriEdit =
-    "http://" + database.ip + ":" + database.port + "/php/editAula.php";
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/Backend_MyGym/php/editAula.php";
 
   const { aula } = route.params;
 
@@ -165,7 +169,6 @@ export default function DetailsAulaGrupo({ route, navigation }) {
           if (json.message === "success") {
             desativarVisible();
             showModalSucesso(true);
-            // navigation.goBack();
           }
         })
         .catch((error) => {

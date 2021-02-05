@@ -8,7 +8,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   BackHandler,
-  Alert,
   TouchableOpacity,
 } from "react-native";
 
@@ -25,7 +24,11 @@ import { colors } from "../../constant/colors";
 
 export default function AddAulaGrupo({ navigation }) {
   const uri =
-    "http://" + database.ip + ":" + database.port + "/php/insertAulaGrupo.php";
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/Backend_MyGym/php/insertAulaGrupo.php";
 
   const [user, setUser] = useState([]);
 
@@ -229,61 +232,6 @@ export default function AddAulaGrupo({ navigation }) {
           <Picker.Item label="Sábado" value="Sábado" />
           <Picker.Item label="Domingo" value="Domingo" />
         </Picker>
-        {/* <DropDownPicker
-            items={[
-              {
-                label: "---",
-                value: "---",
-                disabled: true,
-              },
-              {
-                label: "Segunda-Feira",
-                value: "Segunda-Feira",
-              },
-              {
-                label: "Terça-Feira",
-                value: "Terça-Feira",
-              },
-              {
-                label: "Quarta-Feira",
-                value: "Quarta-Feira",
-              },
-              {
-                label: "Quinta-Feira",
-                value: "Quinta-Feira",
-              },
-              {
-                label: "Sexta-Feira",
-                value: "Sexta-Feira",
-              },
-              {
-                label: "Sábado",
-                value: "Sábado",
-              },
-              {
-                label: "Domingo",
-                value: "Domingo",
-              },
-            ]}
-            defaultValue={diaSemana}
-            containerStyle={{
-              height: 50,
-              marginTop: "2%",
-            }}
-            style={{
-              borderColor: "#B72727",
-            }}
-            labelStyle={{
-              fontSize: 15,
-              fontFamily: "Poppins_Regular",
-            }}
-            dropDownStyle={{
-              justifyContent: "flex-start",
-              backgroundColor: "#fff",
-              fontFamily: "Poppins_Regular",
-            }}
-            onChangeItem={(item) => setDiaSemana(item.value)}
-          /> */}
         <Button mode="contained" style={styles.mainBtn} onPress={() => add()}>
           <Text style={styles.mainBtnText}>Criar Aula Grupo</Text>
         </Button>

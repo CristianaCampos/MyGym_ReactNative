@@ -10,14 +10,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import {
-  Button,
-  Modal,
-  Provider,
-  Portal,
-  FAB,
-  Divider,
-} from "react-native-paper";
+import { Button, Modal, Provider, Portal, Divider } from "react-native-paper";
 import * as Animatable from "react-native-animatable";
 import IconsFA from "react-native-vector-icons/FontAwesome";
 
@@ -27,7 +20,12 @@ import { styles } from "../../../constant/styles";
 import { colors } from "../../../constant/colors";
 
 export default function Login({ navigation }) {
-  const uri = "http://" + database.ip + ":" + database.port + "/php/login.php";
+  const uri =
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/Backend_MyGym/php/login.php";
 
   const [nomeUtilizador, setNomeUtilizador] = useState("");
   const [pass, setPass] = useState("");
@@ -93,7 +91,16 @@ export default function Login({ navigation }) {
               json.exercises,
               json.aulas
             );
-            navigation.navigate("Main", { nome: json.user.nome });
+            navigation.navigate("Main", {
+              nome: json.user.nome,
+              screen: "PlanosTreinoList",
+              params: {
+                screen: "PlanosTreino",
+                params: {
+                  user: json.user,
+                },
+              },
+            });
           } else if (json.message === "login_failed")
             showModalDadosDesconhecidos(true);
         })

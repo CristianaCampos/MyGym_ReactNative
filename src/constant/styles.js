@@ -51,8 +51,9 @@ export const styles = StyleSheet.create({
     color: colors.textBlack,
   },
   input: {
-    height: 50,
+    fontSize: 15,
     marginTop: "2%",
+    height: 50,
     flexDirection: "row",
     alignSelf: "center",
     width: "100%",
@@ -60,7 +61,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderColor: colors.main,
     borderRadius: 7,
-    fontSize: 15,
     fontFamily: "Poppins_Regular",
     color: colors.textBlack,
   },

@@ -3,7 +3,6 @@ import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import {
   TextInput,
-  Alert,
   View,
   Text,
   KeyboardAvoidingView,
@@ -25,7 +24,11 @@ import { colors } from "../../constant/colors";
 
 export default function DetailsExercicio({ route, navigation }) {
   const uriEdit =
-    "http://" + database.ip + ":" + database.port + "/php/editExercicio.php";
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/Backend_MyGym/php/editExercicio.php";
 
   const { exercicio } = route.params;
 
@@ -126,13 +129,6 @@ export default function DetailsExercicio({ route, navigation }) {
             desativarVisible();
             updateStorage();
             showModalSucesso(true);
-            // Alert.alert(
-            //   "Sucesso",
-            //   "Exercício atualizado com sucesso!",
-            //   [{ text: "OK", style: "default" }],
-            //   { cancelable: true }
-            // );
-            // navigation.goBack();
           }
         })
         .catch((error) => {
@@ -140,12 +136,6 @@ export default function DetailsExercicio({ route, navigation }) {
         });
     } else {
       showModalErro(true);
-      // Alert.alert(
-      //   "Erro",
-      //   "Preencha todos os campos!",
-      //   [{ text: "OK", style: "destructive" }],
-      //   { cancelable: true }
-      // );
     }
   }
 

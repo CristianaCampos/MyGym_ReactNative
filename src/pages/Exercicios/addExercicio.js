@@ -3,7 +3,6 @@ import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import {
   TextInput,
-  Alert,
   View,
   Text,
   KeyboardAvoidingView,
@@ -22,7 +21,11 @@ import { colors } from "../../constant/colors";
 
 export default function AddExercicio({ navigation }) {
   const uri =
-    "http://" + database.ip + ":" + database.port + "/php/insertExercicio.php";
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/Backend_MyGym/php/insertExercicio.php";
 
   const [user, setUser] = useState([]);
 
@@ -60,13 +63,6 @@ export default function AddExercicio({ navigation }) {
         .then((json) => {
           if (json.message == "success") {
             showModalSucesso(true);
-            // Alert.alert(
-            //   "Sucesso",
-            //   "Exercício registado com sucesso!",
-            //   [{ text: "OK", style: "default" }],
-            //   { cancelable: true }
-            // );
-            // navigation.navigate("ExerciciosList");
           }
         })
         .catch((error) => {
@@ -74,12 +70,6 @@ export default function AddExercicio({ navigation }) {
         });
     } else {
       showModalErro(true);
-      // Alert.alert(
-      //   "Erro",
-      //   "Preencha todos os campos!",
-      //   [{ text: "OK", style: "destructive" }],
-      //   { cancelable: true }
-      // );
     }
   }
 

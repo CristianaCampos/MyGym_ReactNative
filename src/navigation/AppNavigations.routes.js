@@ -183,7 +183,6 @@ function Tabs() {
 }
 
 export default function AppNavigations() {
-  // const [username, setUsername] = useState("");
   const [userId, setUserId] = useState("");
   const [newNavigation, setNewNavigation] = useState("");
 
@@ -191,13 +190,8 @@ export default function AppNavigations() {
   const [exercicioId, setExercicioId] = useState("");
   const [aulaId, setAulaId] = useState("");
 
-  // const [plano, setPlano] = useState("");
-  // const [exercicio, setExercicio] = useState("");
-  // const [aula, setAula] = useState("");
-
   const [modalErro, setModalErro] = useState(false);
   const [modalSucesso, setModalSucesso] = useState(false);
-  const [modalUltimoRegisto, setModalUltimoRegisto] = useState(false);
 
   const [modalEliminarPlano, setModalEliminarPlano] = useState(false);
   const [modalEliminarExercicio, setModalEliminarExercicio] = useState(false);
@@ -211,11 +205,6 @@ export default function AppNavigations() {
   const showModalSucesso = () => setModalSucesso(true);
   const hideModalSucesso = () => {
     setModalSucesso(false);
-  };
-
-  const showModalUltimoRegisto = () => setModalUltimoRegisto(true);
-  const hideModalUltimoRegisto = () => {
-    setModalUltimoRegisto(false);
   };
 
   const showModalEliminarPlano = () => setModalEliminarPlano(true);
@@ -233,17 +222,26 @@ export default function AppNavigations() {
     setModalEliminarAula(false);
   };
 
-  const uri =
-    "http://" + database.ip + ":" + database.port + "/php/getUsername.php";
-
   const uriDeletePlano =
-    "http://" + database.ip + ":" + database.port + "/php/deletePlano.php";
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/Backend_MyGym/php/deletePlano.php";
 
   const uriDeleteExercicio =
-    "http://" + database.ip + ":" + database.port + "/php/deleteExercicio.php";
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/Backend_MyGym/php/deleteExercicio.php";
 
   const uriDeleteAula =
-    "http://" + database.ip + ":" + database.port + "/php/deleteAula.php";
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/Backend_MyGym/php/deleteAula.php";
 
   async function clearUserId() {
     try {
@@ -282,9 +280,6 @@ export default function AppNavigations() {
           case "delete_failed":
             showModalErro(true);
             break;
-          case "is_last_result":
-            showModalUltimoRegisto(true);
-            break;
         }
       })
       .catch((error) => {
@@ -320,9 +315,6 @@ export default function AppNavigations() {
             break;
           case "delete_failed":
             showModalErro(true);
-            break;
-          case "is_last_result":
-            showModalUltimoRegisto(true);
             break;
         }
       })
@@ -360,32 +352,12 @@ export default function AppNavigations() {
           case "delete_failed":
             showModalErro(true);
             break;
-          case "is_last_result":
-            showModalUltimoRegisto(true);
-            break;
         }
       })
       .catch((error) => {
         console.log(error);
       });
   }
-
-  // useEffect(() => {
-  //   async function getUser() {
-  //     try {
-  //       let value = await AsyncStorage.getItem(storage.user);
-  //       value = JSON.parse(value);
-
-  //       if (value != null) {
-  //         setUser(value);
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-
-  //   getUser().then();
-  // }, []);
 
   return (
     <Provider>
@@ -486,7 +458,7 @@ export default function AppNavigations() {
       </Portal>
       {/*  */}
       {/* modal ultimo registo */}
-      <Portal>
+      {/* <Portal>
         <Modal
           visible={modalUltimoRegisto}
           onDismiss={hideModalUltimoRegisto}
@@ -530,7 +502,7 @@ export default function AppNavigations() {
             </TouchableOpacity>
           </View>
         </Modal>
-      </Portal>
+      </Portal> */}
       {/*  */}
       {/* modal eliminar plano */}
       <Portal>

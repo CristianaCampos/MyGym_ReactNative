@@ -25,7 +25,11 @@ import { colors } from "../../constant/colors";
 
 export default function AccountConfig({ navigation }) {
   const uriEdit =
-    "http://" + database.ip + ":" + database.port + "/php/editDadosConta.php";
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/Backend_MyGym/php/editDadosConta.php";
 
   const [user, setUser] = useState([]);
 
@@ -208,12 +212,6 @@ export default function AccountConfig({ navigation }) {
             desativarVisible();
             updateStorage();
             showModalSucesso(true);
-            // Alert.alert(
-            //   "Sucesso",
-            //   "Dados atualizados com sucesso!",
-            //   [{ text: "OK", style: "default" }],
-            //   { cancelable: true }
-            // );
           }
         })
         .catch((error) => {
@@ -221,12 +219,6 @@ export default function AccountConfig({ navigation }) {
         });
     } else {
       showModalErro(true);
-      // Alert.alert(
-      //   "Erro",
-      //   "Preencha todos os campos!",
-      //   [{ text: "OK", style: "destructive" }],
-      //   { cancelable: true }
-      // );
     }
   }
 
@@ -379,7 +371,7 @@ export default function AccountConfig({ navigation }) {
             />
             <Text style={styles.meunome}>{nome}</Text>
             <Text style={styles.meunome}>@{nomeUtilizador}</Text>
-            <Animatable.View animation="fadeInUp" useNativeDriver={true}>
+            <Animatable.View animation="bounceInUp" useNativeDriver={true}>
               <Text style={styles.textInput}>Nome</Text>
               <TextInput
                 value={nome}

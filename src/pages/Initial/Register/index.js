@@ -21,7 +21,11 @@ import { colors } from "../../../constant/colors";
 
 export default function Register({ navigation }) {
   const uri =
-    "http://" + database.ip + ":" + database.port + "/php/insertUser.php";
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/Backend_MyGym/php/insertUser.php";
 
   const [nome, setNome] = useState("");
   const [nomeUtilizador, setNomeUtilizador] = useState("");

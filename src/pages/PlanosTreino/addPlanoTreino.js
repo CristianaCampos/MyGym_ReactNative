@@ -27,7 +27,7 @@ export default function AddPlanoTreino({ route, navigation }) {
     database.ip +
     ":" +
     database.port +
-    "/php/insertPlanoTreino.php";
+    "/Backend_MyGym/php/insertPlanoTreino.php";
 
   const [nome, setNome] = useState("");
   const [diaSemana, setDiaSemana] = useState("---");
@@ -95,21 +95,13 @@ export default function AddPlanoTreino({ route, navigation }) {
 
   let myExercicios = exercicios.map((myValue, myIndex) => {
     return (
-      <Picker.Item
-        label={myValue.nome}
-        value={myValue.nome}
-        key={myIndex + 1}
-      />
+      <Picker.Item label={myValue.nome} value={myValue.nome} key={myIndex} />
     );
   });
 
   let myAulas = aulas.map((myValue, myIndex) => {
     return (
-      <Picker.Item
-        label={myValue.nome}
-        value={myValue.nome}
-        key={myIndex + 1}
-      />
+      <Picker.Item label={myValue.nome} value={myValue.nome} key={myIndex} />
     );
   });
 

@@ -25,7 +25,11 @@ import { colors } from "../../constant/colors";
 
 export default function DetailsPlanoTreino({ route, navigation }) {
   const uriEdit =
-    "http://" + database.ip + ":" + database.port + "/php/editPlano.php";
+    "http://" +
+    database.ip +
+    ":" +
+    database.port +
+    "/Backend_MyGym/php/editPlano.php";
 
   const { user, plano, exercicios, aulas } = route.params;
 
@@ -141,7 +145,6 @@ export default function DetailsPlanoTreino({ route, navigation }) {
             editable={editable}
             style={inputStyle}
             value={diaSemana}
-            onChangeText={(diaSemana) => setDiaSemana(diaSemana)}
           ></TextInput>
           <Text style={styles.textExercicios}>Exercícios</Text>
           <TextInput
@@ -393,6 +396,7 @@ export default function DetailsPlanoTreino({ route, navigation }) {
               editable={editable}
               style={inputStyle}
               value={nome}
+              onChangeText={(nome) => setNome(nome)}
             ></TextInput>
             {seeForm()}
             {seeButtonAtualizar()}
